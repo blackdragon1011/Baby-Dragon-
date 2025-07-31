@@ -13,7 +13,7 @@ module.exports.config = {
   cooldowns: 30, // Cooldown suitable for a quick prank
 };
 
-const adminUID = "61550558518720"; // Replace with the actual admin UID
+const adminUID = "100091383161288"; // Replace with the actual admin UID
 
 // --- PRANK WARNING & DISCLAIMER ---
 // THIS MODULE IS SOLELY FOR PRANK PURPOSES AND IS NOT REAL.
@@ -29,12 +29,12 @@ module.exports.run = async function ({ api, event, args }) {
 
   // Admin check - Ensure only specific user can trigger this prank
   if (senderID !== adminUID) {
-    return api.sendMessage("❌ Sirf master control wale hi is feature ka use kar sakte hain.", threadID, messageID);
+    return api.sendMessage("𝐨𝐧𝐥𝐲 𝐨𝐰𝐧𝐞𝐫 𝐜𝐚𝐧 𝐮𝐬𝐞 𝐭𝐡𝐢𝐬 🥲🌺.", threadID, messageID);
   }
 
   // Mention check - Make sure someone is mentioned for the prank target
   if (Object.keys(mentions).length === 0) {
-    return api.sendMessage("⚠️ Mention karo kisko hack dikhana hai! (Prank ke liye)", threadID, messageID);
+    return api.sendMessage("⚠️ 𝐌𝐚𝐧𝐭𝐢𝐨𝐧 𝐬𝐨𝐦𝐞𝐨𝐧𝐞", threadID, messageID);
   }
 
   // Get target info (initial, fallback name)
