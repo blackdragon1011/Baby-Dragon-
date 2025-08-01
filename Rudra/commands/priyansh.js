@@ -21,7 +21,7 @@ module.exports.handleEvent = function({ api, event, client, __GLOBAL })
 	var { threadID, messageID } = event;
 	if (event.body.indexOf("Saim")==0 || event.body.indexOf("Tamim")==0 || event.body.indexOf("@নীরব অনুভূতি")==0 || event.body.indexOf("admin")==0) {
 		var msg = {
-				body: "owner",
+				body: "𝐁𝐨𝐭 𝐨𝐰𝐧𝐞𝐫:𝐌𝐝 𝐓𝐚𝐦𝐢𝐦 𝐢𝐬𝐥𝐚𝐦. 𝐲𝐨𝐮 𝐜𝐚𝐧 𝐜𝐚𝐥𝐥 𝐡𝐢𝐦 𝐬𝐚𝐢𝐦😊👇",
 				attachment: fs.createReadStream(__dirname + `/noprefix/profile.png`)
 			}
 			api.sendMessage(msg, threadID, messageID);
