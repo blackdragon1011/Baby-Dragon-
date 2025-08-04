@@ -63,7 +63,7 @@ module.exports.run = async function ({ api, event, args }) {
  }
 
  if (!args[0] || args[0].toLowerCase() === "list") {
- api.setMessageReaction("☢️", messageID, () => {}, true);
+ api.setMessageReaction("☺️", messageID, () => {}, true);
 
  const message =
  "💫 𝐂𝐡𝐨𝐨𝐬𝐞 𝐚𝐧 𝐚𝐥𝐛𝐮𝐦 𝐜𝐚𝐭𝐞𝐠𝐨𝐫𝐲 𝐁𝐚𝐛𝐲 💫\n" +
