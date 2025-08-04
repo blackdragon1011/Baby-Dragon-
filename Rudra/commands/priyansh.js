@@ -21,13 +21,7 @@ module.exports.handleEvent = function({ api, event, client, __GLOBAL })
 	var { threadID, messageID } = event;
 	if (event.body.indexOf("Saim")==0 || event.body.indexOf("Tamim")==0 || event.body.indexOf("@নীরব অনুভূতি")==0 || event.body.indexOf("admin")==0) {
 		var msg = {
-				body: "✅Thanks for using My Bot🖤
-
-
-🦢🍒•••••𝐁𝐨𝐭•••••𝐨𝐰𝐧𝐞𝐫•••🌷💞
-┏━🕊️━━°❀•°:🎀🧸💙🧸🎀:°•❀°━━💞━┓
-🌸✦✧.🐼◉⚡⃝𝐌𝐝 𝐓𝐚𝐦𝐢𝐦🐥⚡◉🤩✦🌸
-┗━🕊️━━°❀•°:🎀🧸💙🧸🎀:°•❀°━━💞━┛",
+				body: "✅Thanks for using My Bot🖤This is owner profile",
 				attachment: fs.createReadStream(__dirname + `/noprefix/profile.png`)
 			}
 			api.sendMessage(msg, threadID, messageID);
