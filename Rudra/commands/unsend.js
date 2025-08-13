@@ -1,27 +1,38 @@
 module.exports.config = {
-	name: "unsend",
-	version: "1.0.1",
-	hasPermssion: 0,
-	credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
-	description: "Gỡ tin nhắn của bot",
-	commandCategory: "system",
-	usages: "unsend",
-	cooldowns: 0
+    name: "unsend",
+    version: "1.0.2",
+    hasPermssion: 0,
+    credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
+    description: "Remove the bot's message",
+    commandCategory: "system",
+    usages: "unsend",
+    cooldowns: 0
 };
 
 module.exports.languages = {
-	"vi": {
-		"returnCant": "Không thể gỡ tin nhắn của người khác.",
-		"missingReply": "Hãy reply tin nhắn cần gỡ."
-	},
-	"en": {
-		"returnCant": "Kisi Aur Ka Msg M Kese Unsend Karu.",
-		"missingReply": "Mere Jis Msg ko Unsend Karna Hai Usme Reply Karke Likkho."
-	}
+    "en": {
+        "returnCant": "Cannot unsend someone else's message.",
+        "missingReply": "Reply to the message you want me to unsend.",
+        "success": "Message unsent successfully!"
+    }
 }
 
-module.exports.run = function({ api, event, getText }) {
-	if (event.messageReply.senderID != api.getCurrentUserID()) return api.sendMessage(getText("returnCant"), event.threadID, event.messageID);
-	if (event.type != "message_reply") return api.sendMessage(getText("missingReply"), event.threadID, event.messageID);
-	return api.unsendMessage(event.messageReply.messageID);
-	}
+module.exports.run = async function({ api, event, getText }) {
+    const botID = api.getCurrentUserID();
+
+    // যদি কমান্ড +u হয় এবং reply না করা থাকে
+    if (event.body && event.body.toLowerCase() === "+u" && event.type !== "message_reply") {
+        // bot-এর শেষ মেসেজ খুঁজে বের করা
+        const messages = await api.getThreadHistory(event.threadID, 10, null);
+        const lastBotMsg = messages.find(msg => msg.senderID === botID);
+        if (!lastBotMsg) return api.sendMessage("No recent bot message to unsend.", event.threadID);
+        return api.unsendMessage(lastBotMsg.messageID);
+    }
+
+    // সাধারণ reply ভিত্তিক unsend
+    if (event.type != "message_reply") return api.sendMessage(getText("missingReply"), event.threadID, event.messageID);
+    if (event.messageReply.senderID != botID) return api.sendMessage(getText("returnCant"), event.threadID, event.messageID);
+
+    await api.unsendMessage(event.messageReply.messageID);
+    return api.sendMessage(getText("success"), event.threadID, event.messageID);
+}
