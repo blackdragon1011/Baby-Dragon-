@@ -20,7 +20,7 @@ module.exports = {
     const time = new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" });
 
     api.sendMessage({
-      body: `🕵️‍♂️ 𝑹𝒖𝒅𝒓𝒂 𝑻𝒓𝒂𝒄𝒌 𝑳𝒊𝒏𝒌\n\n👤 Target: ${name}\n🔗 Link: ${link}\n🕒 Time: ${time}`,
+      body: `🕵️‍♂️ 𝘀𝗮𝗶𝗺 𝑻𝒓𝒂𝒄𝒌 𝑳𝒊𝒏𝒌\n\n👤 Target: ${name}\n🔗 Link: ${link}\n🕒 Time: ${time}`,
       mentions: [{ id: mention, tag: name }]
     }, event.threadID, event.messageID);
   }
