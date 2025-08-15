@@ -23,7 +23,7 @@ module.exports = {
     name: "youtube",
     version: "2.2.4",
     hasPermssion: 0,
-    credits: "Mirrykal",
+    credits: "Saim",
     description: "Search YouTube videos and get details",
     commandCategory: "Search",
     usages: "[videoName]",
@@ -32,7 +32,7 @@ module.exports = {
 
   run: async function ({ api, event, args }) {
     if (args.length === 0) {
-      return api.sendMessage("⚠️ Video ka naam to likho na! 😒", event.threadID);
+      return api.sendMessage("𝗣𝗹𝘀 𝗲𝗻𝘁𝗲𝗿 𝘁𝗵𝗲 𝗩𝗶𝗱𝗲𝗼 𝗻𝗮𝗺𝗲! 🙂", event.threadID);
     }
 
     const videoName = args.join(" ");
@@ -42,7 +42,7 @@ module.exports = {
       const searchResponse = await axios.get(searchUrl);
 
       if (!searchResponse.data.items.length) {
-        throw new Error("Kuch nahi mila! Video ka naam sahi likho. 😑");
+        throw new Error("𝗗𝗼𝗻'𝘁 𝗳𝗶𝗻𝗱 𝗮𝗻𝘆𝘁𝗵𝗶𝗻𝗴 𝗺𝗮𝘆𝗯𝗲 𝗳𝗿𝗼𝗺 𝘁𝗵𝗶𝘀 𝗻𝗮𝗺𝗲 😑");
       }
 
       let message = "🎬 **Search Results:**\n";
@@ -73,7 +73,7 @@ module.exports = {
 
     const choice = parseInt(event.body.trim());
     if (isNaN(choice) || choice < 1 || choice > data.length) {
-      return api.sendMessage("⚠️ Sahi number bhejo bhai!", event.threadID);
+      return api.sendMessage("⚠️ 𝗽𝗹𝘀 𝗲𝗻𝘁𝗲𝗿 𝘁𝗵𝗲 𝗻𝘂𝗺𝗯𝗲𝗿", event.threadID);
     }
 
     const video = data[choice - 1];
@@ -116,7 +116,7 @@ module.exports = {
 
     } catch (err) {
       console.error("❌ Details Error:", err.message);
-      return api.sendMessage("❌ Video details laane mein dikkat ho gayi.", event.threadID);
+      return api.sendMessage("❌ Some error happened.", event.threadID);
     }
   }
 };
