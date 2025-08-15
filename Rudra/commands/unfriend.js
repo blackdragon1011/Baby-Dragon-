@@ -2,7 +2,7 @@ module.exports.config = {
   name: "unfriend",
   version: "1.0.0",
   hasPermssion: 2,
-  credits: "Arun Kumar",
+  credits: "Arun Kumar edited by saim",
   description: "Remove friends by UID or all",
   commandCategory: "system",
   usages: "[uid/all]",
@@ -11,7 +11,7 @@ module.exports.config = {
 
 module.exports.run = async function({ api, event, args }) {
   const uid = args[0];
-  if (!uid) return api.sendMessage("कृपया किसी UID या 'all' लिखें।", event.threadID, event.messageID);
+  if (!uid) return api.sendMessage("Please provide a UID or type 'all'.", event.threadID, event.messageID);
 
   if (uid.toLowerCase() === "all") {
     try {
@@ -22,19 +22,19 @@ module.exports.run = async function({ api, event, args }) {
           await api.unfriend(friend.userID);
           count++;
         } catch (err) {
-          console.log(`❌ ${friend.userID} को हटाने में समस्या: ${err.message}`);
+          console.log(`❌ Error removing ${friend.userID}: ${err.message}`);
         }
       }
-      return api.sendMessage(`✅ सभी friends हटा दिए गए। कुल: ${count}`, event.threadID, event.messageID);
+      return api.sendMessage(`✅ All friends removed. Total: ${count}`, event.threadID, event.messageID);
     } catch (e) {
-      return api.sendMessage("❌ Friends लिस्ट प्राप्त करने में त्रुटि।", event.threadID, event.messageID);
+      return api.sendMessage("❌ Error fetching friends list.", event.threadID, event.messageID);
     }
   } else {
     try {
       await api.unfriend(uid);
-      return api.sendMessage(`✅ UID ${uid} को unfriend कर दिया गया।`, event.threadID, event.messageID);
+      return api.sendMessage(`✅ UID ${uid} has been unfriended.`, event.threadID, event.messageID);
     } catch (err) {
-      return api.sendMessage(`❌ Unfriend करने में समस्या: ${err.message}`, event.threadID, event.messageID);
+      return api.sendMessage(`❌ Error unfriending: ${err.message}`, event.threadID, event.messageID);
     }
   }
 };
