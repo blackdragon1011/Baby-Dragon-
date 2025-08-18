@@ -3,8 +3,8 @@ const fs = require("fs-extra");
 const path = require("path");
 
 // 🔒 Lock credits and powered by phrase
-const lockedCredits = Object.freeze("Rudra");
-const lockedTagline = Object.freeze("🖤 Powered by Rudra");
+const lockedCredits = Object.freeze("saim");
+const lockedTagline = Object.freeze("🖤 Powered by saim");
 
 // Hook to detect if message is tampered
 function verifyTagline(text) {
