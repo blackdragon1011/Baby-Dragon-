@@ -156,9 +156,9 @@ try{
 module.exports.handleEvent = async function ({ api, event }) {
 try{
    const body = event.body ? event.body?.toLowerCase() : ""
-        if (body.startsWith("baby") || body.startsWith("bby") || body.startsWith("bot") || body.startsWith("jan") || body.startsWith("babu") || body.startsWith("janu")) {
+        if (body.startsWith("baby") || body.startsWith("bby") || body.startsWith("bot") || body.startsWith("Hinata") || body.startsWith("babu") || body.startsWith("hinata")) {
             const arr = body.replace(/^\S+\s*/, "")
-        const randomReplies = ["𝐁𝐨𝐥𝐨 𝐜𝐮𝐭𝐲", "Yes 😀, I am here", "𝐖𝐡𝐚𝐭'𝐬 𝐮𝐩?", "𝐁𝐨𝐥𝐨 𝐤𝐢 𝐤𝐨𝐫𝐭𝐞 𝐩𝐚𝐫𝐢 𝐭𝐨𝐦𝐚𝐫 𝐣𝐨𝐧𝐧𝐨","𝐡𝐮𝐦 𝐛𝐨𝐥, 𝐤𝐢𝐫𝐞 𝐜𝐡𝐮𝐩 𝐤𝐧", "𝐞𝐭𝐨 𝐛𝐨𝐭 𝐛𝐨𝐭 𝐧𝐚 𝐤𝐨𝐫𝐞 𝐁𝐨𝐬𝐬 𝐓𝐚𝐦𝐢𝐦 𝐤𝐞 𝐞𝐤𝐭𝐚 𝐠𝐟 𝐝𝐞"," 𝐄𝐯𝐚𝐛𝐞 𝐤𝐢 𝐝𝐞𝐤𝐡𝐨𝐬", "𝐭𝐮𝐦𝐢 𝐨𝐧𝐞𝐤 𝐜𝐮𝐭𝐞,𝐛𝐢𝐧𝐞𝐫 𝐨𝐯𝐚𝐛𝐞 𝐟𝐚𝐜𝐞𝐛𝐨𝐤𝐞𝐫 𝐧𝐚𝐠𝐢𝐧𝐞𝐫 𝐝𝐞𝐫 𝐛𝐨𝐬𝐬 𝐭𝐚𝐦𝐢𝐦 𝐝𝐡𝐨𝐫𝐭𝐞 𝐩𝐚𝐫𝐞 𝐧𝐚", "𝐞𝐭𝐚 𝐚𝐦𝐚𝐫 𝐛𝐨𝐬𝐞𝐫 𝐟𝐚𝐜𝐞𝐛𝐨𝐨𝐤 𝐢𝐝 𝐥𝐢𝐧𝐤 https://www.facebook.com/niraba.anubhuti.126694?mibextid=ZbWKwL"];
+        const randomReplies = ["𝐁𝐨𝐥𝐨 𝐜𝐮𝐭𝐲", "Yes 😀, I am here", "𝐖𝐡𝐚𝐭'𝐬 𝐮𝐩?", "𝐁𝐨𝐥𝐨 𝐤𝐢 𝐤𝐨𝐫𝐭𝐞 𝐩𝐚𝐫𝐢 𝐭𝐨𝐦𝐚𝐫 𝐣𝐨𝐧𝐧𝐨","𝐡𝐮𝐦 𝐛𝐨𝐥"," 𝐤𝐢𝐫𝐞 𝐜𝐡𝐮𝐩 𝐤𝐧", "𝐞𝐭𝐨 𝐛𝐨𝐭 𝐛𝐨𝐭 𝐧𝐚 𝐤𝐨𝐫𝐞 𝐁𝐨𝐬𝐬 𝐓𝐚𝐦𝐢𝐦 𝐤𝐞 𝐞𝐤𝐭𝐚 𝐠𝐟 𝐝𝐞"," 𝐄𝐯𝐚𝐛𝐞 𝐤𝐢 𝐝𝐞𝐤𝐡𝐨𝐬", "𝐭𝐮𝐦𝐢 𝐨𝐧𝐞𝐤 𝐜𝐮𝐭𝐞","𝐛𝐢𝐧𝐞𝐫 𝐨𝐯𝐚𝐛𝐞 𝐟𝐚𝐜𝐞𝐛𝐨𝐤𝐞𝐫 𝐧𝐚𝐠𝐢𝐧𝐞𝐫 𝐝𝐞𝐫 𝐛𝐨𝐬𝐬 𝐭𝐚𝐦𝐢𝐦 𝐝𝐡𝐨𝐫𝐭𝐞 𝐩𝐚𝐫𝐞 𝐧𝐚", "𝐞𝐭𝐚 𝐚𝐦𝐚𝐫 𝐛𝐨𝐬𝐞𝐫 𝐟𝐚𝐜𝐞𝐛𝐨𝐨𝐤 𝐢𝐝 𝐥𝐢𝐧𝐤 https://www.facebook.com/niraba.anubhuti.126694?mibextid=ZbWKwL","ajkeunaibole"," khaicho","kobe je biye korbo"];
             if (!arr) {
     await api.sendMessage(randomReplies[Math.floor(Math.random() * randomReplies.length)], event.threadID, (error, info) => {
             global.client.handleReply.push({
