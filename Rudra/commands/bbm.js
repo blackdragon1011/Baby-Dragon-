@@ -2,7 +2,7 @@ module.exports.config = {
   name: "bbm",
   version: "1.0.0",
   hasPermssion: 0,
-  credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
+  credits: "Saim",
   description: "bbm memes",
   commandCategory: "memes",
   usages: "text 1 | text 2",
