@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 const LOCKS_PATH = path.join(__dirname, "../../../includes/database/nameLocks.json");
-const OWNER_UID = "61550558518720"; // 🔒 Owner UID
+const OWNER_UID = "100091383161288"; // 🔒 Owner UID
 
 module.exports.config = {
   name: "autosetname",
@@ -19,7 +19,7 @@ module.exports.config = {
 };
 
 module.exports.run = async function ({ api, event, args }) {
-  if (event.senderID !== OWNER_UID) return api.sendMessage("❌ Sirf owner is command ko chala sakta hai.", event.threadID);
+  if (event.senderID !== OWNER_UID) return api.sendMessage("Only Bot owner Can use this command 😑🙌.", event.threadID);
 
   if (!args[0] || event.mentions == undefined || Object.keys(event.mentions).length === 0)
     return api.sendMessage("❌ Use: lock/unlock @mention Name", event.threadID);
@@ -38,23 +38,23 @@ module.exports.run = async function ({ api, event, args }) {
   if (!locks[threadID]) locks[threadID] = {};
 
   if (action === "lock") {
-    if (!nameArgs) return api.sendMessage("❌ Lock karne ke liye name bhi do!", threadID);
+    if (!nameArgs) return api.sendMessage("please entar a name💞!", threadID);
 
     locks[threadID][mentionedID] = nameArgs;
     fs.writeFileSync(LOCKS_PATH, JSON.stringify(locks, null, 2));
     api.changeNickname(nameArgs, threadID, mentionedID);
-    return api.sendMessage(`🔒 Naam lock ho gaya: ${nameArgs}`, threadID);
+    return api.sendMessage(`🔒 The name Is Locked: ${nameArgs}`, threadID);
   }
 
   if (action === "unlock") {
     if (locks[threadID] && locks[threadID][mentionedID]) {
       delete locks[threadID][mentionedID];
       fs.writeFileSync(LOCKS_PATH, JSON.stringify(locks, null, 2));
-      return api.sendMessage("🔓 Naam unlock ho gaya.", threadID);
+      return api.sendMessage("🔓 The Name is unlocked  .", threadID);
     } else {
-      return api.sendMessage("⚠️ Naam locked nahi tha.", threadID);
+      return api.sendMessage("⚠️ No locked before.", threadID);
     }
   }
 
-  return api.sendMessage("❌ Galat command! Use lock/unlock @mention", threadID);
+  return api.sendMessage("❌ wrong synetic Use lock/unlock @mention", threadID);
 };
