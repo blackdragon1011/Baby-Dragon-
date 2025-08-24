@@ -1,8 +1,8 @@
 module.exports.config = {
   name: "help",
-  version: "3.0.4",
+  version: "3.0.5",
   hasPermssion: 0,
-  credits: "Edited by 𝓜𝓭 𝓣𝓪𝓶𝓲𝓶 ✧",
+  credits: "Edited by 𝑀𝑑 𝑇𝑎𝑚𝑖𝑚",
   description: "Show all commands with categories (stylish, fancy)",
   commandCategory: "system",
   usages: "[commandName]",
@@ -37,15 +37,19 @@ module.exports.run = function({ api, event, args }) {
     categories[cat].push(name);
   }
 
+  // Bot Name & Prefix from config/global
+  const botName = global.config.BOTNAME || "Obot";
+  const botPrefix = global.config.PREFIX || "!";
+
   let msg = "📌 Command List\n\n";
   for (let cat in categories) {
     msg += `🔹 ${cat.toUpperCase()}\n   ${categories[cat].join(" ❖ ")}\n\n`;
   }
 
   msg += "━━━━━━━━━━━━━━━━━━━━━━\n";
-  msg += "🤖 Bot Name   ──⫸ ꧁༺ Hinata ༻꧂\n";
-  msg += "🔑 Bot Prefix ──⫸ [ + ]\n";
-  msg += "👑 Bot Owner  ──⫸ ꧁𓊈𒆜 𝓜𝓭 𝓣𝓪𝓶𝓲𝓶 ✧ 𒆜𓊉꧂";
+  msg += `🤖 Bot Name   ──⫸ ꧁༺ ${botName} ༻꧂\n`;
+  msg += `🔑 Bot Prefix ──⫸ [ ${botPrefix} ]\n`;
+  msg += `👑 Bot Owner  ──⫸ 𝑀𝑑 𝑇𝑎𝑚𝑖𝑚`;
 
   return api.sendMessage(msg, threadID, async (error, info) => {
     if (autoUnsend) {
