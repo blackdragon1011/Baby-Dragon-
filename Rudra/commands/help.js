@@ -1,9 +1,9 @@
 module.exports.config = {
   name: "help",
-  version: "3.0.3",
+  version: "3.0.4",
   hasPermssion: 0,
-  credits: "Edited by 𝕄𝕕 𝕋𝕒𝕞𝕚𝕞",
-  description: "Show all commands with categories (stylish, no prefix)",
+  credits: "Edited by 𝓜𝓭 𝓣𝓪𝓶𝓲𝓶 ✧",
+  description: "Show all commands with categories (stylish, fancy)",
   commandCategory: "system",
   usages: "[commandName]",
   cooldowns: 1,
@@ -13,41 +13,23 @@ module.exports.config = {
   }
 };
 
-module.exports.languages = {
-  "en": {
-    "moduleInfo": "「 %1 」\n%2\n\n❯ Usage: %3\n❯ Category: %4\n❯ Waiting time: %5 seconds(s)\n❯ Permission: %6\n\n» Module code by %7 «",
-    "user": "User",
-    "adminGroup": "Admin group",
-    "adminBot": "Admin bot"
-  }
-};
-
-module.exports.run = function({ api, event, args, getText }) {
+module.exports.run = function({ api, event, args }) {
   const { commands } = global.client;
   const { threadID, messageID } = event;
-  const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
   const { autoUnsend, delayUnsend } = global.configModule[this.config.name];
 
   const command = commands.get((args[0] || "").toLowerCase());
 
-  // নির্দিষ্ট কমান্ড দিলে details দেখাবে
+  // যদি নির্দিষ্ট কমান্ড দেওয়া হয়
   if (command) {
     return api.sendMessage(
-      getText("moduleInfo",
-        command.config.name,
-        command.config.description,
-        `${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`,
-        command.config.commandCategory,
-        command.config.cooldowns,
-        ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")),
-        command.config.credits
-      ),
+      `「 ${command.config.name} 」\n${command.config.description}\n\n❯ Usage: ${command.config.name} ${(command.config.usages) ? command.config.usages : ""}\n❯ Category: ${command.config.commandCategory}\n❯ Waiting time: ${command.config.cooldowns} seconds\n❯ Permission: ${command.config.hasPermssion}\n\n» Module code by ${this.config.credits} «`,
       threadID,
       messageID
     );
   }
 
-  // সব কমান্ড category-wise (no prefix)
+  // সব কমান্ড category-wise
   let categories = {};
   for (let [name, value] of commands) {
     let cat = value.config.commandCategory || "Other";
@@ -57,10 +39,13 @@ module.exports.run = function({ api, event, args, getText }) {
 
   let msg = "📌 Command List\n\n";
   for (let cat in categories) {
-    msg += `🔹 ${cat.toUpperCase()}: ${categories[cat].join(" ✦ ")}\n`;
+    msg += `🔹 ${cat.toUpperCase()}\n   ${categories[cat].join(" ❖ ")}\n\n`;
   }
 
-  msg += "\n━━━━━━━━━━━━━━━━━━\n🤖 Bot Owner ──⫸ 𝕄𝕕 𝕋𝕒𝕞𝕚𝕞 ✨";
+  msg += "━━━━━━━━━━━━━━━━━━━━━━\n";
+  msg += "🤖 Bot Name   ──⫸ ꧁༺ Hinata ༻꧂\n";
+  msg += "🔑 Bot Prefix ──⫸ [ + ]\n";
+  msg += "👑 Bot Owner  ──⫸ ꧁𓊈𒆜 𝓜𝓭 𝓣𝓪𝓶𝓲𝓶 ✧ 𒆜𓊉꧂";
 
   return api.sendMessage(msg, threadID, async (error, info) => {
     if (autoUnsend) {
