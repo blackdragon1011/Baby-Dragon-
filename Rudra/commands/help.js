@@ -1,71 +1,91 @@
-module.exports.config = {
-  name: "help",
-  version: "3.0.3",
-  hasPermssion: 0,
-  credits: "Edited by 𝕄𝕕 𝕋𝕒𝕞𝕚𝕞",
-  description: "Show all commands with categories (stylish, no prefix)",
-  commandCategory: "system",
-  usages: "[commandName]",
-  cooldowns: 1,
-  envConfig: {
-    autoUnsend: true,
-    delayUnsend: 300
-  }
+ module.exports.config = {
+ name: "help",
+ version: "1.0.2",
+ hasPermssion: 0,
+ credits: "Md Tamim",
+ description: "Beginner's Guide",
+ commandCategory: "system",
+ usages: "[Tên module]",
+ cooldowns: 1,
+ envConfig: {
+  autoUnsend: true,
+  delayUnsend: 300
+ }
 };
 
 module.exports.languages = {
-  "en": {
-    "moduleInfo": "「 %1 」\n%2\n\n❯ Usage: %3\n❯ Category: %4\n❯ Waiting time: %5 seconds(s)\n❯ Permission: %6\n\n» Module code by %7 «",
-    "user": "User",
-    "adminGroup": "Admin group",
-    "adminBot": "Admin bot"
-  }
+ //"vi": {
+ //	"moduleInfo": "「 %1 」\n%2\n\n❯ Cách sử dụng: %3\n❯ Thuộc nhóm: %4\n❯ Thời gian chờ: %5 giây(s)\n❯ Quyền hạn: %6\n\n» Module code by %7 «",
+ //	"helpList": '[ Hiện tại đang có %1 lệnh có thể sử dụng trên bot này, Sử dụng: "%2help nameCommand" để xem chi tiết cách sử dụng! ]"',
+ //	"user": "Người dùng",
+  //      "adminGroup": "Quản trị viên nhóm",
+  //      "adminBot": "Quản trị viên bot"
+//	},
+ "en": {
+  "moduleInfo": "「 %1 」\n%2\n\n❯ Usage: %3\n❯ Category: %4\n❯ Waiting time: %5 seconds(s)\n❯ Permission: %6\n\n» Module code by %7 «",
+  "helpList": '[ There are %1 commands on this bot, Use: "%2help nameCommand" to know how to use! ]',
+  "user": "User",
+        "adminGroup": "Admin group",
+        "adminBot": "Admin bot"
+ }
 };
 
-module.exports.run = function({ api, event, args, getText }) {
-  const { commands } = global.client;
-  const { threadID, messageID } = event;
-  const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
-  const { autoUnsend, delayUnsend } = global.configModule[this.config.name];
+module.exports.handleEvent = function ({ api, event, getText }) {
+ const { commands } = global.client;
+ const { threadID, messageID, body } = event;
 
-  const command = commands.get((args[0] || "").toLowerCase());
+ if (!body || typeof body == "undefined" || body.indexOf("help") != 0) return;
+ const splitBody = body.slice(body.indexOf("help")).trim().split(/\s+/);
+ if (splitBody.length == 1 || !commands.has(splitBody[1].toLowerCase())) return;
+ const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
+ const command = commands.get(splitBody[1].toLowerCase());
+ const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
+ return api.sendMessage(getText("moduleInfo", command.config.name, command.config.description, `${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits), threadID, messageID);
+}
 
-  // নির্দিষ্ট কমান্ড দিলে details দেখাবে
-  if (command) {
-    return api.sendMessage(
-      getText("moduleInfo",
-        command.config.name,
-        command.config.description,
-        `${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`,
-        command.config.commandCategory,
-        command.config.cooldowns,
-        ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")),
-        command.config.credits
-      ),
-      threadID,
-      messageID
-    );
-  }
+module.exports. run = function({ api, event, args, getText }) {
+ const { commands } = global.client;
+ const { threadID, messageID } = event;
+ const command = commands.get((args[0] || "").toLowerCase());
+ const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
+ const { autoUnsend, delayUnsend } = global.configModule[this.config.name];
+ const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
 
-  // সব কমান্ড category-wise (no prefix)
-  let categories = {};
-  for (let [name, value] of commands) {
-    let cat = value.config.commandCategory || "Other";
-    if (!categories[cat]) categories[cat] = [];
-    categories[cat].push(name);
-  }
+ if (!command) {
+  const arrayInfo = [];
+  const page = parseInt(args[0]) || 1;
+    const numberOfOnePage = 10;
+    //*số thứ tự 1 2 3.....cú pháp ${++i}*//
+    let i = 0;
+    let msg = "";
+    
+    for (var [name, value] of (commands)) {
+      name += ``;
+      arrayInfo.push(name);
+    }
 
-  let msg = "📌 Command List\n\n";
-  for (let cat in categories) {
-    msg += `🔹 ${cat.toUpperCase()}: ${categories[cat].join(" ✦ ")}\n`;
-  }
+    arrayInfo.sort((a, b) => a.data - b.data);
+    
+    const startSlice = numberOfOnePage*page - numberOfOnePage;
+    i = startSlice;
+    const returnArray = arrayInfo.slice(startSlice, startSlice + numberOfOnePage);
+    
+    for (let item of returnArray) msg += `「 ${++i} 」${prefix}${item}\n`;
+    
+    
+    const siu = `Command list 📄\ntype /help (command name) ✨\n󰂆 󰟯 󰟰 󰟷 󰟺 󰟵 󰟫`;
+    
+ const text = `\nPage (${page}/${Math.ceil(arrayInfo.length/numberOfOnePage)})\n`;
+ 
+    return api.sendMessage(siu + "\n\n" + msg  + text, threadID, async (error, info) => {
+   if (autoUnsend) {
+    await new Promise(resolve => setTimeout(resolve, delayUnsend * 1000));
+    return api.unsendMessage(info.messageID);
+   } else return;
+  }, event.messageID);
+ }
 
-  msg += "\n━━━━━━━━━━━━━━━━━━\n🤖 Bot Owner ──⫸ 𝕄𝕕 𝕋𝕒𝕞𝕚𝕞 ✨";
-
-  return api.sendMessage(msg, threadID, async (error, info) => {
-    if (autoUnsend) {
-      await new Promise(resolve => setTimeout(resolve, delayUnsend * 1000));
-      return api.unsendMessage(info.messageID);
-    }
-  }, messageID);
+ return api.sendMessage(getText("moduleInfo", command.config.name, command.config.description, `${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits), threadID, messageID);
 };
+
+ei code emon vabe koro je sobgulo categories kore dei command ar sob gulo ekshate dei alada page kore na 
