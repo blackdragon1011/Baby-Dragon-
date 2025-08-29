@@ -51,54 +51,54 @@
             "answer": 2
         },
         {
-            "question": "পদার্থবিজ্ঞানের ধাঁধা 6",
+            "question": "বাংলাদেশের রাজধানী কোনটি?",
             "options": [
-                "Option A",
-                "Option B",
-                "Option C",
-                "Option D"
+                "ঢাকা",
+                "চট্রগ্রাম",
+                "খুলনা",
+                "রাজশাহী"
             ],
             "answer": 1
         },
         {
-            "question": "পদার্থবিজ্ঞানের ধাঁধা 7",
+            "question": "মানবদেহে মোট কতটি হাড় আছে?",
             "options": [
-                "Option A",
-                "Option B",
-                "Option C",
-                "Option D"
+                "২০৬ টি",
+                "১০৬ টি",
+                "১০০৬ টি",
+                "৫০৬ টি"
             ],
             "answer": 1
         },
         {
-            "question": "পদার্থবিজ্ঞানের ধাঁধা 8",
+            "question": "সূর্যের সবচেয়ে কাছের গ্রহ কোনটি?",
             "options": [
-                "Option A",
-                "Option B",
-                "Option C",
-                "Option D"
+                "মঙ্গল",
+                "পৃথিবী",
+                "বুধ",
+                "শনি"
+            ],
+            "answer": 3
+        },
+        {
+            "question": "পৃথিবী থেকে সূর্যের দূরত্ব কত কিলোমিটার?",
+            "options": [
+                "১৫০০ কোটি",
+                "২০০ কোটি",
+                "৫০০ কোটি",
+                "১০০০ কোটি"
             ],
             "answer": 1
         },
         {
-            "question": "পদার্থবিজ্ঞানের ধাঁধা 9",
+            "question": "আমাদের দেশের প্রধান উপদেষ্টা কে?",
             "options": [
-                "Option A",
-                "Option B",
-                "Option C",
-                "Option D"
+                "শেখ হাসিনা",
+                "আব্দুল হামিদ",
+                "দীপু মনি",
+                "ডঃ ইউনুস"
             ],
-            "answer": 1
-        },
-        {
-            "question": "পদার্থবিজ্ঞানের ধাঁধা 10",
-            "options": [
-                "Option A",
-                "Option B",
-                "Option C",
-                "Option D"
-            ],
-            "answer": 1
+            "answer": 4
         },
         {
             "question": "পদার্থবিজ্ঞানের ধাঁধা 11",
