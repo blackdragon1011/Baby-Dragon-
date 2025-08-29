@@ -1,0 +1,404 @@
+{
+    "quizzes": [
+        {
+            "question": "আমি অদৃশ্য কিন্তু সবকিছুকে টানি। আমি কে?",
+            "options": [
+                "ঘর্ষণ",
+                "মাধ্যাকর্ষণ",
+                "চৌম্বক",
+                "আলো"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "আমি সোজা গেলে দেখা যায়, বাঁকালে ভেঙে যাই। আমি কে?",
+            "options": [
+                "আলো",
+                "শব্দ",
+                "আয়না",
+                "ছায়া"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "আমাকে ভাঙলে শব্দ হয়, আমাকে বাজালে সুর হয়। আমি কে?",
+            "options": [
+                "তরঙ্গ",
+                "বায়ু",
+                "ঘণ্টা",
+                "ঢাক"
+            ],
+            "answer": 3
+        },
+        {
+            "question": "আমাকে দেখা যায় না, কিন্তু আমাকে ছাড়া শ্বাস নেয়া যায় না।",
+            "options": [
+                "অক্সিজেন",
+                "হাইড্রোজেন",
+                "কার্বন",
+                "নাইট্রোজেন"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "আমি আলো দিই, তবু জ্বলি না। আমি কে?",
+            "options": [
+                "সূর্য",
+                "চাঁদ",
+                "তারা",
+                "বাতি"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 6",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 7",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 8",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 9",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 10",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 11",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 12",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 13",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 14",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 15",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 16",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 17",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 18",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 19",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "পদার্থবিজ্ঞানের ধাঁধা 20",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 1
+        },
+        {
+            "question": "রসায়নের ধাঁধা 1",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 2",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 3",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 4",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 5",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 6",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 7",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 8",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 9",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 10",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 11",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 12",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 13",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 14",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 15",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 16",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 17",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 18",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 19",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        },
+        {
+            "question": "রসায়নের ধাঁধা 20",
+            "options": [
+                "Option A",
+                "Option B",
+                "Option C",
+                "Option D"
+            ],
+            "answer": 2
+        }
+    ]
+}
