@@ -1,130 +1,100 @@
 const fs = require("fs");
 const path = require("path");
 
-// === Helper: safe JSON read/write ===
-function readJSON(file, fallback) {
-  try {
-    if (!fs.existsSync(file)) return fallback;
-    const txt = fs.readFileSync(file, "utf8");
-    return JSON.parse(txt || "null") ?? fallback;
-  } catch {
-    return fallback;
-  }
-}
-function writeJSON(file, data) {
-  fs.mkdirSync(path.dirname(file), { recursive: true });
-  fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf8");
-}
+const quizFile = path.join(__dirname, "cache", "quiz.json");
 
-// === Helper: today string in Asia/Dhaka ===
-function todayDhaka() {
-  // yyyy-mm-dd
-  const d = new Date();
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Dhaka",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).format(d); // "YYYY-MM-DD"
-  return parts;
-}
+// প্রতিদিন সর্বোচ্চ 20টা কুইজ খেলার সীমা
+const dailyLimit = 20;
+
+// ইউজারদের খেলার হিসাব রাখার জন্য মেমোরি অবজেক্ট
+let userPlayCount = {};
 
 module.exports.config = {
   name: "quiz",
-  version: "1.1.0",
-  hasPermssion: 0,
-  credits: "Tamim",
-  description: "Physics Riddle Quiz (+/-3000 টাকা) with daily limit",
-  commandCategory: "Game",
-  usages: "quiz",
-  cooldowns: 3
+  version: "1.0.0",
+  author: "Tamim", //don't change credit 
+  countDown: 5,
+  role: 0,
+  shortDescription: "Quiz Game",
+  longDescription: "পদার্থবিজ্ঞান আর রসায়নের কুইজ ধাঁধা। সঠিক উত্তর দিলে 3000 টাকা জিতবে, ভুল হলে 3000 টাকা কেটে যাবে।",
+  category: "game",
+  guide: {
+    en: "{p}{n} -> কুইজ শুরু করো"
+  }
 };
 
-// ইন-মেমরি ট্র্যাকার: কোন মেসেজে কোন উত্তর
-let pending = {};
-
-module.exports.run = async function ({ api, event, Currencies }) {
-  const quizFile = path.join(__dirname, "cache", "quiz.json");
-  const usageFile = path.join(__dirname, "cache", "quiz_usage.json");
-
-  // quiz.json check
-  if (!fs.existsSync(quizFile))
-    return api.sendMessage("❌ `cache/quiz.json` ফাইল পাওয়া যায়নি!", event.threadID);
-
-  // === Daily limit check (per user, max 20/day) ===
-  const uid = String(event.senderID);
-  const today = todayDhaka();
-
-  const usage = readJSON(usageFile, {}); // { userID: { date: "YYYY-MM-DD", count: N } }
-  const u = usage[uid] || { date: today, count: 0 };
-
-  if (u.date !== today) {
-    // নতুন দিন => কাউন্ট রিসেট
-    u.date = today;
-    u.count = 0;
-  }
-  if (u.count >= 20) {
-    return api.sendMessage(
-      "⛔ আজকের লিমিট শেষ! প্রতিদিন সর্বোচ্চ ২০টা ধাঁধা খেলতে পারো। কালকে আবার চেষ্টা করো 🕘",
-      event.threadID
-    );
-  }
-
-  // Load questions
-  const data = readJSON(quizFile, []);
-  if (!Array.isArray(data) || data.length === 0)
-    return api.sendMessage("❌ `quiz.json` খালি!", event.threadID);
-
-  // Random pick
-  const q = data[Math.floor(Math.random() * data.length)];
-  if (!q || !q.question || !Array.isArray(q.options) || !q.answer) {
-    return api.sendMessage("❌ `quiz.json`-এ কিছু ভুল ফরম্যাট আছে।", event.threadID);
-  }
-
-  // Prepare options text
-  let opts = "";
-  q.options.forEach((opt, i) => (opts += `${i + 1}. ${opt}\n`));
-
-  // Increase usage count NOW (question আইসেই 1 গণনা)
-  u.count += 1;
-  usage[uid] = u;
-  writeJSON(usageFile, usage);
-
-  api.sendMessage(
-    `🧠 পদার্থবিজ্ঞানের ধাঁধা (${u.count}/20 - আজ)\n\n` +
-      `❓ ${q.question}\n\n${opts}\n` +
-      `👉 উত্তর দিতে শুধু নম্বর লিখো (1-${q.options.length})\n` +
-      `✅ সঠিক হলে +3000 | ❌ ভুল হলে -3000`,
-    event.threadID,
-    (err, info) => {
-      if (err) return;
-      pending[info.messageID] = { answer: Number(q.answer), userID: uid };
+module.exports.onStart = async function ({ api, event, Users, Currencies }) {
+  try {
+    // প্রতিদিনের limit reset (midnight এ reset)
+    const today = new Date().toDateString();
+    if (!userPlayCount[event.senderID] || userPlayCount[event.senderID].date !== today) {
+      userPlayCount[event.senderID] = { count: 0, date: today };
     }
-  );
+
+    if (userPlayCount[event.senderID].count >= dailyLimit) {
+      return api.sendMessage("❌ আজকের জন্য তোমার 20 টার limit শেষ হয়ে গেছে! কালকে আবার চেষ্টা করো।", event.threadID, event.messageID);
+    }
+
+    // quiz.json লোড করা
+    if (!fs.existsSync(quizFile)) {
+      return api.sendMessage("⚠️ quiz.json ফাইল cache ফোল্ডারে পাওয়া যায়নি!", event.threadID, event.messageID);
+    }
+
+    const quizzes = JSON.parse(fs.readFileSync(quizFile));
+    if (quizzes.length === 0) {
+      return api.sendMessage("⚠️ quiz.json ফাঁকা আছে, আগে প্রশ্ন যোগ করো!", event.threadID, event.messageID);
+    }
+
+    // র‌্যান্ডম কুইজ নাও
+    const randomQuiz = quizzes[Math.floor(Math.random() * quizzes.length)];
+
+    api.sendMessage(
+      `🤔 কুইজ:\n\n${randomQuiz.question}\n\n1️⃣ ${randomQuiz.options[0]}\n2️⃣ ${randomQuiz.options[1]}\n3️⃣ ${randomQuiz.options[2]}\n4️⃣ ${randomQuiz.options[3]}\n\n👉 সঠিক উত্তর দিতে 1-4 এর মধ্যে একটি সংখ্যা রিপ্লাই করো।`,
+      event.threadID,
+      (err, info) => {
+        global.GoatBot.onReply.set(info.messageID, {
+          commandName: "quiz",
+          author: event.senderID,
+          correctAnswer: randomQuiz.answer,
+          messageID: info.messageID
+        });
+      },
+      event.messageID
+    );
+  } catch (e) {
+    console.error(e);
+    api.sendMessage("❌ কুইজ চালু করতে সমস্যা হচ্ছে।", event.threadID, event.messageID);
+  }
 };
 
-module.exports.handleReply = async function ({ api, event, Currencies }) {
-  const replyTo = event.messageReply?.messageID;
-  if (!replyTo) return;
-  const entry = pending[replyTo];
-  if (!entry) return;
+module.exports.onReply = async function ({ api, event, reply, Currencies }) {
+  const { author, correctAnswer, messageID } = reply;
 
-  if (String(event.senderID) !== String(entry.userID)) {
-    return api.sendMessage("❌ এই ধাঁধাটা তুমি শুরু করোনি!", event.threadID);
+  if (event.senderID !== author) return;
+
+  const userAnswer = parseInt(event.body.trim());
+
+  if (isNaN(userAnswer) || userAnswer < 1 || userAnswer > 4) {
+    return api.sendMessage("⚠️ উত্তর দিতে হলে 1-4 এর মধ্যে একটি সংখ্যা লিখতে হবে।", event.threadID, event.messageID);
   }
 
-  const pick = parseInt(event.body.trim(), 10);
-  if (isNaN(pick)) {
-    return api.sendMessage("👉 শুধু নম্বর লিখো প্লিজ (1-4)।", event.threadID);
+  // ইউজারের play count update
+  const today = new Date().toDateString();
+  if (!userPlayCount[event.senderID] || userPlayCount[event.senderID].date !== today) {
+    userPlayCount[event.senderID] = { count: 0, date: today };
   }
+  userPlayCount[event.senderID].count++;
 
-  if (pick === entry.answer) {
+  // উত্তরের ফলাফল চেক
+  if (userAnswer === correctAnswer) {
     await Currencies.increaseMoney(event.senderID, 3000);
-    api.sendMessage("✅ সঠিক! 🎉 তোমার একাউন্টে +3000 টাকা যোগ হলো।", event.threadID);
+    api.sendMessage("🎉 সঠিক উত্তর! তুমি জিতেছো 3000 টাকা।", event.threadID, event.messageID);
   } else {
     await Currencies.decreaseMoney(event.senderID, 3000);
-    api.sendMessage("❌ ভুল! তোমার একাউন্ট থেকে -3000 টাকা কাটা হলো।", event.threadID);
+    api.sendMessage(`❌ ভুল উত্তর! তোমার 3000 টাকা কেটে নেওয়া হলো। সঠিক উত্তর ছিল: ${correctAnswer}`, event.threadID, event.messageID);
   }
 
-  delete pending[replyTo];
+  // cleanup
+  global.GoatBot.onReply.delete(messageID);
 };
+      
