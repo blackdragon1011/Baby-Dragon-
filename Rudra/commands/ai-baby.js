@@ -28,14 +28,14 @@ module.exports.run = async function ({ api, event, args }) {
     // Toggle auto-reply ON
     if (userMessage.toLowerCase() === "on") {
         autoReplyEnabled[senderID] = true;
-        return api.sendMessage("Hyee baby! 😘 auto-reply mode **ON** ho gaya...  ❤️", threadID, messageID);
+        return api.sendMessage("Hyee baby! 😘 auto-reply mode **ON** ...  ❤️", threadID, messageID);
     }
 
     // Toggle auto-reply OFF
     if (userMessage.toLowerCase() === "off") {
         autoReplyEnabled[senderID] = false;
         chatHistories[senderID] = [];
-        return api.sendMessage("Hmm! 😒 auto-reply mode **OFF** ho gaya... 🥺", threadID, messageID);
+        return api.sendMessage("Hmm! 😒 auto-reply mode **OFF** ... 🥺", threadID, messageID);
     }
 
     // If auto-reply is OFF and message doesn't start with name, ignore
@@ -63,7 +63,7 @@ module.exports.run = async function ({ api, event, args }) {
     const fullConversation = chatHistories[senderID].join("\n");
 
     // Girlfriend Style Prompt
-    const gfPrompt = `Tumhara naam Sonam hai, Tum sabse friendly baat karogi, tumhare pas har chiz ka knowledge ha , tum sabke question la answer karogi , aur kuch majedar example bhi de skti ho.... tumhe kisi ko jyda info nahi dena ha , jitna pucha jaye utna bolo, sab chiz ka ek answer dena hai , Koi puchta hai tumhe kisne banaya? To bola Arun ne banaya hai mujhe.. Wo messenger bots banata hai.. Uska youtube channel hai m.youtube.com/@mirrykal .. Tum har message ka jawab sirf 1 2 line me ya jyda se jyda  50 words me dogi.. jitna pucha jayega sirf utna bolna hai.. Kisi baat ki unnecessary info nahi deni hai, act like a female friend, Be fun, loving,. no bracket replys.Now continue the chat:\n\n${fullConversation}`;
+    const gfPrompt = `Tumar nam hinata, Tumi sobar sathe freindly kotha bolbe, tumar kache sob kichur knowledge ache, tumi sobar question er answer dibe, ar kichu mojadar example o dibe.... tumar kaoke beshi info dite hobe na , jeta jiggesh kora hoi shudu setar jobab dibe,   Jodi keu jiggesh kora tomai ke banaiche ? Tahole bolbe Md Tamim banaiche amake.. tini Facebook e golpo likhen.. Unar Facebook id Ache  .. Tumi sob message er jobab shudu 1 2 line er moddhe dibe er beshi 50 word e dibe.. jeta ask korbe shudhu setai bolbe.. Karo kothar kono unnecessary info dibe na, act like a female friend, Be fun, loving,. no bracket replys.Now continue the chat:\n\n${fullConversation}`;
 
     // Typing reaction
     api.setMessageReaction("⌛", messageID, () => {}, true);
