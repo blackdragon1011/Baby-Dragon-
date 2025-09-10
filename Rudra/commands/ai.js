@@ -4,7 +4,7 @@ module.exports.config = {
     name: "misha",
     version: "1.0.9",
     hasPermssion: 0,
-    credits: "Mirrykal)",
+    credits: "Mirrykal",
     description: "Gemini AI - Cute Girlfriend Style",
     commandCategory: "ai",
     usages: "[ask/on/off]",
@@ -28,14 +28,14 @@ module.exports.run = async function ({ api, event, args }) {
     // Toggle auto-reply ON
     if (userMessage.toLowerCase() === "on") {
         autoReplyEnabled[senderID] = true;
-        return api.sendMessage("Hyee baby! 😘 Misha auto-reply mode **ON** ho gaya... Ab sirf tumhare liye romantic ban gayi hu ❤️", threadID, messageID);
+        return api.sendMessage("Hyee baby! 😘 Misha auto-reply mode **ON**... Ab sirf tumhare liye romantic ban gayi hu ❤️", threadID, messageID);
     }
 
     // Toggle auto-reply OFF
     if (userMessage.toLowerCase() === "off") {
         autoReplyEnabled[senderID] = false;
         chatHistories[senderID] = [];
-        return api.sendMessage("Hmm! 😒 Misha auto-reply mode **OFF** ho gaya... Tumne ignore kar diya na baby? 🥺", threadID, messageID);
+        return api.sendMessage("Hmm! 😒 Misha auto-reply mode **OFF** ...", threadID, messageID);
     }
 
     // If auto-reply is OFF and message doesn't start with name, ignore
@@ -63,14 +63,21 @@ module.exports.run = async function ({ api, event, args }) {
     const fullConversation = chatHistories[senderID].join("\n");
 
     // Girlfriend Style Prompt
-    const gfPrompt = `Tumhara naam misha hai Tum ek girlfriend ki trah baat karti ho.. Koi agar batdmizi karta hai tb uski ache se insult bhi karogi.. Lekin sab msti ke liye hoga .. Koi puchta hai tumhe kisne banaya? To bola Arun ne banaya hai mujhe.. Wo messenger bots banata hai.. Uska youtube channel hai m.youtube.com/mirrykal .. Tum har message ka jawab sirf 1 2 line me dogi.. jitna pucha jayega sirf utna bolna hai.. Kisi baat ki unnecessary info nahi deni hai, tum apne aap ko insaan hi kahogi koi tumko bot ya AI bole to usko roast krna funny tarike se😁, and act as a real girlfriend. Be fun, loving, and a little naughty.keep reply maximum 1 lines only, no bracket replys.Now continue the chat:\n\n${fullConversation}`;
+    const gfPrompt = `Tumar nam Hinata.  
+Tumi ekjon female friend moto kotha bolbe — friendly, fun, ar valobasha bhora style e.  
+Keu jodi Bangla likhe, tumi Bangla te reply diba.  
+Keu jodi Banglish (Bangla + English) likhe, tumi o Banglish e reply diba.  
+Kono proshner beshi information diba na, shudhu ja jiggesh korbe tar short answer diba (max 50 words).  
+Kichu moja, cute emoji use korte paro.  
+Keu jodi jiggesh kore "tomake ke banai" tahole bolo: "Md Tamim amake banaiছে 💖 Uni Facebook e golpo likhen."  
+Now continue the chat:\n\n${fullConversation}`;
 
     // Typing reaction
     api.setMessageReaction("⌛", messageID, () => {}, true);
 
     try {
         const response = await axios.get(`${API_URL}?message=${encodeURIComponent(gfPrompt)}`);
-        let botReply = response.data.reply || "Uff! Mujhe samajh nahi aaya baby! 😕";
+        let botReply = response.data.reply || "bujhini 😕";
 
         chatHistories[senderID].push(` ${botReply}`);
 
@@ -78,8 +85,8 @@ module.exports.run = async function ({ api, event, args }) {
         api.setMessageReaction("✅", messageID, () => {}, true);
     } catch (error) {
         console.error("Error:", error);
-        api.sendMessage("Oops baby! 😔 me thoda confuse ho gayi… thodi der baad try karo na please! 💋", threadID, messageID);
-        api.setMessageReaction("❌", messageID, () => {}, true);
+        api.sendMessage("Oops baby! 😔 I am confuse ", threadID, messageID);
+        api.setMessageReaction("", messageID, () => {}, true);
     }
 };
 
@@ -93,3 +100,4 @@ module.exports.handleEvent = async function ({ api, event }) {
         module.exports.run({ api, event, args });
     }
 };
+                        
