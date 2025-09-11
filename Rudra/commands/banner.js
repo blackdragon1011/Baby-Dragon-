@@ -1,93 +1,115 @@
 module.exports.config = {
-	name: "banner",
-	version: "1.0.2",
-	hasPermssion: 0,
-	credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
-	description: "generates banner with lots of characters available",
+  name: "banner",
+  version: "1.0.3",
+  hasPermssion: 0,
+  credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭 | Fixed by Tamim",
+  description: "Generates custom anime banner",
   commandCategory: "game",
-	usages: "{number}|{name1}|{name2}|{name3}|{color}",
-    cooldowns: 5
+  usages: "{number}|{name1}|{name2}|{name3}|{color}",
+  cooldowns: 5
 };
-module.exports.run = async ({ api, event,args }) =>  {
-  const text1 = args.join(" ").trim().replace(/\s+/g, " ").replace(/(\s+\|)/g, "|").replace(/\|\s+/g, "|").split("|")[0] || "21";
-  const text2 = args.join(" ").trim().replace(/\s+/g, " ").replace(/(\s+\|)/g, "|").replace(/\|\s+/g, "|").split("|")[1] || "";
-  const text3 = args.join(" ").trim().replace(/\s+/g, " ").replace(/(\s+\|)/g, "|").replace(/\|\s+/g, "|").split("|")[2] || "";
-  const text4 = args.join(" ").trim().replace(/\s+/g, " ").replace(/(\s+\|)/g, "|").replace(/\|\s+/g, "|").split("|")[3] || "";
-  const color = args.join(" ").trim().replace(/\s+/g, " ").replace(/(\s+\|)/g, "|").replace(/\|\s+/g, "|").split("|")[4] || "";
-  
-    const { loadImage, createCanvas } = require("canvas");
-    const fs = require('fs')
-    const request = require('request');
-    const path = require('path');
-    const axios = require('axios');
-    const lengthchar = (await axios.get('https://run.mocky.io/v3/0dcc2ccb-b5bd-45e7-ab57-5dbf9db17864')).data
-    const Canvas = require('canvas');
-    let pathImg = __dirname + `/tad/avatar_1.png`;
-    let pathAva = __dirname + `/tad/avatar_2.png`;
-    let avtAnime = (
-      await axios.get(encodeURI(`${lengthchar[text1 - 1].imgAnime}`), { responseType: "arraybuffer" })).data;
-    fs.writeFileSync(pathAva, Buffer.from(avtAnime, "utf-8"));
-    let background = (await axios.get(encodeURI(`https://imgur.com/Ch778s2.png`), { responseType: "arraybuffer" })).data;
-    fs.writeFileSync(pathImg, Buffer.from(background, "utf-8"));
-     if (!fs.existsSync(__dirname +
-      `/tad/PastiOblique-7B0wK.otf`)) {
-      let getfon2t = (await axios.get(`https://github.com/hanakuUwU/font/raw/main/PastiOblique-7B0wK.otf`, { responseType: "arraybuffer" })).data;
-      fs.writeFileSync(__dirname + `/tad/PastiOblique-7B0wK.otf`, Buffer.from(getfon2t, "utf-8"));
-    };
-         if (!fs.existsSync(__dirname +
-      `/tad/gantellinesignature-bw11b.ttf`)) {
-      let getfon3t = (await axios.get(`https://github.com/hanakuUwU/font/raw/main/gantellinesignature-bw11b.ttf`, { responseType: "arraybuffer" })).data;
-      fs.writeFileSync(__dirname + `/tad/gantellinesignature-bw11b.ttf`, Buffer.from(getfon3t, "utf-8"));
-    };
-        if (!fs.existsSync(__dirname +
-      `/tad/UTM%20Bebas.ttf`)) {
-      let getfon3t2 = (await axios.get(`https://github.com/hanakuUwU/font/blob/main/UTM%20Bebas.ttf?raw=true`, { responseType: "arraybuffer" })).data;
-      fs.writeFileSync(__dirname + `/tad/UTM%20Bebas.ttf`, Buffer.from(getfon3t2, "utf-8"));
-    };
-    if(color == "no" || color == "No" || color == ""){
-     color_ = lengthchar[text1 - 1].colorBg
-    } else {
-      color_ = color
+
+module.exports.run = async ({ api, event, args }) => {
+  const { loadImage, createCanvas, registerFont } = require("canvas");
+  const fs = require("fs-extra");
+  const axios = require("axios");
+  const path = require("path");
+
+  try {
+    // Argument split
+    const parts = args.join(" ").trim().replace(/\s*\|\s*/g, "|").split("|");
+    const text1 = parts[0] || "1"; // character number
+    const text2 = parts[1] || ""; // main name
+    const text3 = parts[2] || ""; // signature
+    const text4 = parts[3] || ""; // tagline
+    const color = parts[4] || "no";
+
+    // Paths
+    const dir = path.join(__dirname, "tad");
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+    const pathBg = path.join(dir, "background.png");
+    const pathAva = path.join(dir, "avatar.png");
+    const pathOut = path.join(dir, `banner_${Date.now()}.png`);
+
+    // Character data
+    const characters = (await axios.get("https://run.mocky.io/v3/0dcc2ccb-b5bd-45e7-ab57-5dbf9db17864")).data;
+    const charData = characters[text1 - 1];
+    if (!charData) return api.sendMessage("❌ Invalid number. Please try again.", event.threadID, event.messageID);
+
+    // Download images
+    const avtAnime = (await axios.get(charData.imgAnime, { responseType: "arraybuffer" })).data;
+    fs.writeFileSync(pathAva, Buffer.from(avtAnime, "binary"));
+
+    const background = (await axios.get("https://i.imgur.com/Ch778s2.png", { responseType: "arraybuffer" })).data;
+    fs.writeFileSync(pathBg, Buffer.from(background, "binary"));
+
+    // Fonts
+    const font1 = path.join(dir, "PastiOblique.otf");
+    const font2 = path.join(dir, "gantellinesignature.ttf");
+    const font3 = path.join(dir, "Bebas.ttf");
+
+    if (!fs.existsSync(font1)) {
+      const f1 = (await axios.get("https://github.com/hanakuUwU/font/raw/main/PastiOblique-7B0wK.otf", { responseType: "arraybuffer" })).data;
+      fs.writeFileSync(font1, Buffer.from(f1, "binary"));
     }
-    let a = await loadImage(pathImg);
-    let ab = await loadImage(pathAva);
-    let canvas = createCanvas(a.width, a.height);
-    let ctx = canvas.getContext("2d");
-     ctx.fillStyle = "#e6b030";
+    if (!fs.existsSync(font2)) {
+      const f2 = (await axios.get("https://github.com/hanakuUwU/font/raw/main/gantellinesignature-bw11b.ttf", { responseType: "arraybuffer" })).data;
+      fs.writeFileSync(font2, Buffer.from(f2, "binary"));
+    }
+    if (!fs.existsSync(font3)) {
+      const f3 = (await axios.get("https://github.com/hanakuUwU/font/raw/main/UTM%20Bebas.ttf?raw=true", { responseType: "arraybuffer" })).data;
+      fs.writeFileSync(font3, Buffer.from(f3, "binary"));
+    }
+
+    // Register fonts
+    registerFont(font1, { family: "PastiOblique" });
+    registerFont(font2, { family: "Gantelli" });
+    registerFont(font3, { family: "Bebas" });
+
+    // Canvas draw
+    const a = await loadImage(pathBg);
+    const ab = await loadImage(pathAva);
+    const canvas = createCanvas(a.width, a.height);
+    const ctx = canvas.getContext("2d");
+
     ctx.drawImage(a, 0, 0, canvas.width, canvas.height);
-     ctx.drawImage(ab, 1500, -400, 1980, 1980);
-     ctx.textAlign = "start";
-  Canvas.registerFont(__dirname + `/tad/PastiOblique-7B0wK.otf`, {
-    family: "PastiOblique-7B0wK"
-  });
-    ctx.fillStyle = color_ 
-    ctx.font = "370px PastiOblique-7B0wK";
+    ctx.drawImage(ab, 1500, -400, 1980, 1980);
+
+    // Main name
+    ctx.fillStyle = color.toLowerCase() === "no" ? charData.colorBg : color;
+    ctx.font = "370px PastiOblique";
     ctx.fillText(text2, 500, 750);
-    ctx.textAlign = "start";
-  Canvas.registerFont(__dirname + `/tad/gantellinesignature-bw11b.ttf`, {
-    family: "gantellinesignature-bw11b"
-  });
-    ctx.fillStyle = "#fff"
-    ctx.font = "350px gantellinesignature-bw11b";
+
+    // Signature
+    ctx.fillStyle = "#fff";
+    ctx.font = "350px Gantelli";
     ctx.fillText(text3, 500, 680);
-    ctx.save();
-     Canvas.registerFont(__dirname + `/tad/UTM%20Bebas.ttf`, {
-    family: "Bebas"
-  });
+
+    // Tagline
     ctx.textAlign = "end";
-    ctx.fillStyle = "#f56236"
-    ctx.font = "145px PastiOblique-7B0wK";
+    ctx.fillStyle = "#f56236";
+    ctx.font = "145px PastiOblique";
     ctx.fillText(text4, 2100, 870);
-    ctx.beginPath();
-    const imageBuffer = canvas.toBuffer();
-     fs.writeFileSync(pathImg, imageBuffer);
-  return api.sendMessage({
-    body: `Here's Your Photo`,
-    attachment: fs.createReadStream(pathImg)
-  },
-    event.threadID,
-    () => fs.unlinkSync(pathImg),
-    fs.unlinkSync(pathAva),
-    event.messageID
-  );
- }
+
+    // Save output
+    fs.writeFileSync(pathOut, canvas.toBuffer());
+
+    // Send result
+    return api.sendMessage(
+      {
+        body: "✅ Here's your banner:",
+        attachment: fs.createReadStream(pathOut)
+      },
+      event.threadID,
+      () => {
+        fs.unlinkSync(pathOut);
+        fs.unlinkSync(pathAva);
+        fs.unlinkSync(pathBg);
+      },
+      event.messageID
+    );
+  } catch (e) {
+    return api.sendMessage("❌ Error: " + e.message, event.threadID, event.messageID);
+  }
+};
+	
