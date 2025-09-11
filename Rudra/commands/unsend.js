@@ -1,5 +1,5 @@
 module.exports.config = {
-    name: "unsend",
+    name: "u",
     version: "1.0.2",
     hasPermssion: 0,
     credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
@@ -13,7 +13,7 @@ module.exports.languages = {
     "en": {
         "returnCant": "Cannot unsend someone else's message.",
         "missingReply": "Reply to the message you want me to unsend.",
-        "success": "Message unsent successfully!"
+        "success": ""
     }
 }
 
