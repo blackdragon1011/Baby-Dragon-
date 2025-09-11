@@ -1,39 +1,49 @@
 module.exports.config = {
-  name: "art",
-  version: "1.0.0",
+  name: "anime1",
+  version: "1.0.1",
   hasPermssion: 0,
-  credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
-  description: "Animefy",
+  credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭 | Fixed by Tamim",
+  description: "Convert image into anime style",
   commandCategory: "editing",
-  usages: "reply image",
+  usages: "reply with image or give image URL",
   cooldowns: 5
 };
 
 module.exports.run = async ({ api, event, args }) => {
   const axios = require('axios');
   const fs = require('fs-extra');
-  let pathie = __dirname + `/cache/animefy.jpg`;
+  const pathie = __dirname + `/cache/animefy.jpg`;
   const { threadID, messageID } = event;
 
-  var james = event.messageReply.attachments[0].url || args.join(" ");
+  let imageUrl;
 
- try {
-    const lim = await axios.get(`https://animeify.shinoyama.repl.co/convert-to-anime?imageUrl=${encodeURIComponent(james)}`);
-     const image = lim.data.urls[1];
+  // Check if user replied to an image
+  if (event.messageReply && event.messageReply.attachments && event.messageReply.attachments[0]) {
+    imageUrl = event.messageReply.attachments[0].url;
+  } else if (args[0]) {
+    imageUrl = args.join(" ");
+  } else {
+    return api.sendMessage("⚠️ Please reply to an image or give an image URL.", threadID, messageID);
+  }
 
-     const img = (await axios.get(`https://www.drawever.com${image}`, { responseType: "arraybuffer"})).data;
+  try {
+    // First API call
+    const lim = await axios.get(`https://animeify.shinoyama.repl.co/convert-to-anime?imageUrl=${encodeURIComponent(imageUrl)}`);
+    const image = lim.data.urls?.[1] || lim.data.urls?.[0]; // fallback if 2nd url missing
+    if (!image) return api.sendMessage("❌ Failed to get anime image from API.", threadID, messageID);
 
-     fs.writeFileSync(pathie, Buffer.from(img, 'utf-8'));
+    // Second API call
+    const img = (await axios.get(`https://www.drawever.com${image}`, { responseType: "arraybuffer" })).data;
 
-     api.sendMessage({
-       body: "here's your image",
-       attachment: fs.createReadStream(pathie)
-     }, threadID, () => fs.unlinkSync(pathie), messageID);
+    fs.writeFileSync(pathie, Buffer.from(img, 'binary'));
 
-
+    api.sendMessage({
+      body: "✅ Here is your anime-style image:",
+      attachment: fs.createReadStream(pathie)
+    }, threadID, () => fs.unlinkSync(pathie), messageID);
 
   } catch (e) {
-  api.sendMessage(`error occurred:\n\n${e}`, threadID, messageID);
-  };
-
+    api.sendMessage(`❌ Error occurred:\n${e.message}`, threadID, messageID);
+  }
 };
+      
