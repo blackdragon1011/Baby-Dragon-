@@ -1,4 +1,4 @@
-    module.exports.config = {
+module.exports.config = {
     name: "ckbot",
     version: "2.0.0",
     hasPermssion: 0,
@@ -9,13 +9,15 @@
     cooldowns: 3,
     dependencies: {
         "request": "",
-        "fs-extra": ""
+        "fs-extra": "",
+        "axios": ""
     }
 };
 
 module.exports.run = async ({ api, event, args }) => {
     const fs = require("fs-extra");
     const request = require("request");
+    const axios = require("axios");
 
     // ========== HELP ==========
     if (args.length === 0) {
@@ -85,36 +87,44 @@ event.threadID, event.messageID);
     if (args[0] === "user") {
         let id;
 
-        // নিজের বা reply user
         if (!args[1]) {
             id = event.type === "message_reply" ? event.messageReply.senderID : event.senderID;
-        }
-        // যদি tag করা থাকে
-        else if (Object.keys(event.mentions).length > 0) {
+        } else if (Object.keys(event.mentions).length > 0) {
             id = Object.keys(event.mentions)[0];
-        }
-        // UID দেওয়া হলে
-        else {
+        } else {
             id = args[1];
         }
 
         let data = await api.getUserInfo(id);
         let user = data[id];
 
-        let name = user.name;
-        let url = user.profileUrl;
-        let vanity = user.vanity || "N/A";
+        // Extra info via Graph API
+        let moreInfo;
+        try {
+            let res = await axios.get(`https://graph.facebook.com/${id}?fields=id,name,birthday,gender,link,locale,hometown,location,relationship_status,work,education,email&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`);
+            moreInfo = res.data;
+        } catch (e) {
+            moreInfo = {};
+        }
+
         let gender = user.gender == 2 ? "𓆩𝐂𝐮𝐭𝐞 𝐁𝐨𝐲𓆪" : user.gender == 1 ? "𓆩𝐂𝐮𝐭𝐞 𝐆𝐢𝐫𝐥𓆪" : "Unknown";
         let friend = user.isFriend ? "✅ Yes" : "❌ No";
 
         let msg =
 `╭───────────────⭓
-│ 👤 Name: ${name}
-│ 🔗 Profile: ${url}
+│ 👤 Name: ${moreInfo.name || user.name}
 │ 🆔 UID: ${id}
-│ 🎭 Username: ${vanity}
+│ 🎭 Username: ${user.vanity || "N/A"}
 │ 🚻 Gender: ${gender}
 │ 🤝 Friend with Bot: ${friend}
+│ 🎂 Birthday: ${moreInfo.birthday || "Not Public"}
+│ 🏡 Hometown: ${moreInfo.hometown?.name || "Not Public"}
+│ 📍 Current City: ${moreInfo.location?.name || "Not Public"}
+│ 💌 Relationship: ${moreInfo.relationship_status || "Not Public"}
+│ 💼 Work: ${moreInfo.work ? moreInfo.work.map(w => w.employer?.name).join(", ") : "Not Public"}
+│ 🏫 Education: ${moreInfo.education ? moreInfo.education.map(e => e.school?.name).join(", ") : "Not Public"}
+│ 📧 Email: ${moreInfo.email || "Not Public"}
+│ 🔗 Profile: ${moreInfo.link || user.profileUrl}
 ╰───────────────⭓`;
 
         var callback = () => api.sendMessage(
@@ -128,4 +138,4 @@ event.threadID, event.messageID);
             .on("close", () => callback());
     }
 };
-                                     
+    
