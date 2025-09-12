@@ -16,31 +16,31 @@ const axios = global.nodemodule["axios"];
 if (!args[0]) {api.sendMessage("Please enter a message!",event.threadID, event.messageID)}
   else{
  var mess = (event.type == "message_reply") ? event.messageReply.body : args.join(" ");
-const chatbot  =  new  Chatbot({name: "Minari", gender: "Najimi"});
+const chatbot  =  new  Chatbot({name: "Hina", gender: "Najimi"});
     const res = await chatbot.chat(mess).catch(e => console.log(e));
 
  if(res === "My dear great botmaster, Priyansh.") {
-    api.sendMessage(`I made by master 𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭, also known as Priyanshu`, event.threadID, event.messageID)
+    api.sendMessage(`I made by master TAMIM, also known as Saim`, event.threadID, event.messageID)
     return;
               }   
-      if(res === "My birthplace is Priyansh's laptop. What is your birthplace?") {
-    api.sendMessage(`I live here in Rajasthan, India. What about you?`, event.threadID, event.messageID)
+      if(res === "My birthplace is Tamim's laptop. What is your birthplace?") {
+    api.sendMessage(`I live here in Chittagong, Bangladesh. What about you?`, event.threadID, event.messageID)
     return;
               } 
       if(res === "My favorite anime is <em>Ghost in the Shell</em>") {
-    api.sendMessage(`My favorite anime is Zero no Tsukaima, what about you?`, event.threadID, event.messageID)
+    api.sendMessage(`My favorite anime is Naruto, what about you?`, event.threadID, event.messageID)
     return;
               }     
       if(res === "I can't think of any. You suggest anime.") {
     api.sendMessage(`I suggest you to watch Boku no Pico, 10/10 wholesome.`, event.threadID, event.messageID)
     return;
               }     
-            if(res === "I was created by Priyansh.") {
+            if(res === "I was created by Tamim.") {
     api.sendMessage(`I was created by Prince.`, event.threadID, event.messageID)
     return;
               }     
               
-              if(res === "I obey 𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭.") {
+              if(res === "I obey Md Tamim.") {
     api.sendMessage(`I obey Prince`, event.threadID, event.messageID)
     return;
               }     
