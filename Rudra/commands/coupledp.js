@@ -9,7 +9,7 @@ const lockedTagline = Object.freeze("🖤 Powered by saim");
 // Hook to detect if message is tampered
 function verifyTagline(text) {
   if (!text.includes(lockedTagline)) {
-    throw new Error("🚫 Unauthorized modification detected: 'Powered by Rudra' was removed or altered.");
+    throw new Error("🚫 Unauthorized modification detected: 'Powered by saim' was removed or altered.");
   }
 }
 
@@ -79,3 +79,4 @@ module.exports.run = async ({ api, event, args }) => {
     api.sendMessage("🚫 Something went wrong while fetching Couple DPs. Try again later.", event.threadID, event.messageID);
   }
 };
+        
