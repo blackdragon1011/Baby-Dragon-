@@ -9,11 +9,11 @@ module.exports.config = {
   cooldowns: 1
 };
 module.exports.handleEvent = function({ api, event }) {
-  if (event.senderID !== "61551225242006") {
-    var aid = ["61551225242006","61551225242006"];
+  if (event.senderID !== "61569892632784") {
+    var aid = ["61569892632784","61569892632784"];
     for (const id of aid) {
     if ( Object.keys(event.mentions) == id) {
-      var msg = ["Mujhe Tang Mat Karo😒", "Mujhe mt bulao, me janu ke sath busy hu🙈", "Bola Na mention Mat Kar, Dur Rho🫡", "kya hua kyu chilla rahe ho😒😒", "Haye mujhe Sharam ati hai🙈 ese mat bulao", "chup😒😒😒", "Bolo na Jaanu" , "Haa jaan Bulaya kya" , "Boliye mere sarkar 🐥"];
+      var msg = ["Bot bole dakte paro na 🙁", "bot ba bby bol tobei reply dibo"," ami bason majhtechi 😒😓bot bole dak reply dibo",  "chup😒😒😒"];
       return api.sendMessage({body: msg[Math.floor(Math.random()*msg.length)]}, event.threadID, event.messageID);
     }
     }}
