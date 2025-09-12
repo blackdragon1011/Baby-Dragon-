@@ -1,5 +1,5 @@
 module.exports.config = {
-	name: "einstein",
+	name: "ast",
 	version: "3.1.1",
 	hasPermssion: 0,
 	credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
