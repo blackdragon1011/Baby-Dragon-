@@ -1,61 +1,90 @@
-module.exports.config = {
-    name: "slot",
-    version: "1.0.1",
-    hasPermssion: 0,
-    credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
-    description: "fair play",
-    commandCategory: "game-sp",
-    usages: "[number coin required]",
-    cooldowns: 5,
+const formatBet = (input) => {
+  input = input.toLowerCase();
+  if (input.endsWith("k")) return parseInt(input) * 1000;
+  if (input.endsWith("m")) return parseInt(input) * 1000000;
+  if (input.endsWith("b")) return parseInt(input) * 1000000000;
+  if (input.endsWith("t")) return parseInt(input) * 1000000000000;
+  return parseInt(input);
 };
 
-module.exports.languages = {
-    "vi": {
-        "missingInput": "[ SLOT ] Số tiền đặt cược không được để trống hoặc là số âm",
-        "moneyBetNotEnough": "[ SLOT ] Số tiền bạn đặt lớn hơn hoặc bằng số dư của bạn!",
-        "limitBet": "[ SLOT ] Số coin đặt không được dưới 50$!",
-        "returnWin": "🎰 %1 | %2 | %3 🎰\nBạn đã thắng với %4$",
-        "returnLose": "🎰 %1 | %2 | %3 🎰\nBạn đã thua và mất %4$"
-    },
-    "en": {
-        "missingInput": "[ SLOT ] The bet money must not be blank or a negative number",
-        "moneyBetNotEnough": "[ SLOT ] The money you betted is bigger than your balance!",
-        "limitBet": "[ SLOT ] Your bet is too low, the minimum is 50$",
-        "returnWin": "🎰 %1 | %2 | %3 🎰\nYou won with %4$",
-        "returnLose": "🎰 %1 | %2 | %3 🎰\nYou lost and loss %4$"
-    }
-}
+const formatMoney = (number) => {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
 
-module.exports.run = async function({ api, event, args, Currencies, getText }) {
-    const { threadID, messageID, senderID } = event;
-    const { getData, increaseMoney, decreaseMoney } = Currencies;
-    const slotItems = ["🍇", "🍉", "🍊", "🍏", "7⃣", "🍓", "🍒", "🍌", "🥝", "🥑", "🌽"];
-    const moneyUser = (await getData(senderID)).money;
+module.exports.config = {
+  name: "slot",
+  version: "6.0.0",
+  hasPermssion: 0,
+  credits: "Priyansh Rajput + Modified by Tamim",
+  description: "Spinning style Game Machine slot",
+  commandCategory: "game-sp",
+  usages: "[bet amount]",
+  cooldowns: 5,
+};
 
-    var moneyBet = parseInt(args[0]);
-    if (isNaN(moneyBet) || moneyBet <= 0) return api.sendMessage(getText("missingInput"), threadID, messageID);
-	if (moneyBet > moneyUser) return api.sendMessage(getText("moneyBetNotEnough"), threadID, messageID);
-	if (moneyBet < 50) return api.sendMessage(getText("limitBet"), threadID, messageID);
-    var number = [], win = false;
-    for (i = 0; i < 3; i++) number[i] = Math.floor(Math.random() * slotItems.length);
-    if (number[0] == number[1] && number[1] == number[2]) {
-        moneyBet *= 9;
-        win = true;
-    }
-    else if (number[0] == number[1] || number[0] == number[2] || number[1] == number[2]) {
-        moneyBet *= 2;
-        win = true;
-    }
-    switch (win) {
-        case true: {
-            api.sendMessage(getText("returnWin", slotItems[number[0]], slotItems[number[1]], slotItems[number[2]], moneyBet), threadID, messageID);
-            await increaseMoney(senderID, moneyBet);
-            break;
-        }
-        case false: {
-            api.sendMessage(getText("returnLose", slotItems[number[0]], slotItems[number[1]], slotItems[number[2]], moneyBet), threadID, messageID);
-            await decreaseMoney(senderID, moneyBet);
-            break;
-        }
-    }
-}
+module.exports.run = async function({ api, event, args, Currencies }) {
+  const { threadID, messageID, senderID } = event;
+  const { getData, increaseMoney, decreaseMoney } = Currencies;
+
+  const slotItems = ["🍇", "🍉", "🍊", "🍏", "7️⃣", "🍓", "🍒", "🍌", "🥝", "🥑", "🌽"];
+  const moneyUser = (await getData(senderID)).money;
+
+  var moneyBet = formatBet(args[0]);
+  if (!moneyBet || isNaN(moneyBet) || moneyBet <= 0)
+    return api.sendMessage("❌ Please enter a valid bet amount!", threadID, messageID);
+
+  if (moneyBet > moneyUser)
+    return api.sendMessage("💸 You don’t have enough balance!", threadID, messageID);
+
+  if (moneyBet < 50)
+    return api.sendMessage("⚠️ Minimum bet is 50$", threadID, messageID);
+
+  // Final slot result
+  let finalSlot = [];
+  for (let i = 0; i < 3; i++) finalSlot[i] = Math.floor(Math.random() * slotItems.length);
+
+  let reward = 0, win = false;
+  const randomChance = Math.random() < 0.5;
+
+  if (finalSlot[0] == finalSlot[1] && finalSlot[1] == finalSlot[2]) {
+    reward = moneyBet * 9; 
+    win = true;
+  } 
+  else if (finalSlot[0] == finalSlot[1] || finalSlot[0] == finalSlot[2] || finalSlot[1] == finalSlot[2]) {
+    reward = moneyBet * 2; 
+    win = true;
+  } 
+  else if (randomChance) { 
+    reward = Math.floor(moneyBet * 1.5); 
+    win = true;
+  } 
+  else {
+    reward = moneyBet;
+  }
+
+  // Initial spinning animation
+  let spinMsg = await api.sendMessage(`🎰 SLOT MACHINE 🎰\n━━━━━━━━━━━━━━━\n❓ | ❓ | ❓\n━━━━━━━━━━━━━━━\nSpinning... 🎡`, threadID, messageID);
+
+  for (let i = 0; i < 10; i++) {
+    let tempSlot = [];
+    for (let j = 0; j < 3; j++) tempSlot[j] = slotItems[Math.floor(Math.random() * slotItems.length)];
+    await new Promise(resolve => setTimeout(resolve, 500)); // 0.5s delay
+    await api.unsendMessage(spinMsg.messageID); // delete previous
+    spinMsg = await api.sendMessage(`🎰 SLOT MACHINE 🎰\n━━━━━━━━━━━━━━━\n${tempSlot[0]} | ${tempSlot[1]} | ${tempSlot[2]}\n━━━━━━━━━━━━━━━\nSpinning... 🎡`, threadID);
+  }
+
+  // Show final result
+  let resultText = `🎰 SLOT MACHINE 🎰\n━━━━━━━━━━━━━━━\n${slotItems[finalSlot[0]]} | ${slotItems[finalSlot[1]]} | ${slotItems[finalSlot[2]]}\n━━━━━━━━━━━━━━━`;
+
+  if (win) {
+    resultText += `\n✅ You WIN!\n💰 Prize: ${formatMoney(reward)}$`;
+    await increaseMoney(senderID, reward);
+  } else {
+    resultText += `\n❌ You LOSE!\n💸 Lost: ${formatMoney(reward)}$`;
+    await decreaseMoney(senderID, reward);
+  }
+
+  await api.unsendMessage(spinMsg.messageID);
+  api.sendMessage(resultText, threadID);
+};
+	
