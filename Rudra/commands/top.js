@@ -2,7 +2,7 @@ module.exports.config = {
     name: "top",
     version: "1.3.0",
     hasPermssion: 0,
-    credits: "",
+    credits: "Tamim",
     description: "Premium Top List (Users, Threads, Money) without credits",
     commandCategory: "group",
     usages: "[thread/user/money]",
