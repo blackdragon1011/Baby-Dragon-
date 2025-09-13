@@ -1,160 +1,129 @@
-const axios = require('axios'); // Required for downloading profile picture
-const fs = require('fs-extra'); // Required for file handling (reading/deleting)
-const path = require('path');   // Required for handling file paths
+const axios = require('axios'); // প্রোফাইল ছবি ডাউনলোডের জন্য
+const fs = require('fs-extra'); // ফাইল হ্যান্ডলিংের জন্য
+const path = require('path');   // ফাইল পাথ হ্যান্ডলিংয়ের জন্য
 
 module.exports.config = {
-  name: "quickhack", // Command name
-  version: "1.1", // Updated version
+  name: "quickhack", // কমান্ডের নাম
+  version: "1.1", // আপডেটেড ভার্সন
   hasPermssion: 0,
-  credits: "Mohit x Rudra & Modified by Your AI (Quick Prank)", // Updated credits
-  description: "Quick prank: Simulates hacking in ~10s, gives fake login page + profile pic if available, and notifies admin. Handles profile fetch errors.", // Updated description
-  commandCategory: "fun",
+  credits: "Tamim & AI দ্বারা সংশোধিত (Quick Prank)", // ক্রেডিট আপডেট
+  description: "দ্রুত মজা: প্রায় ১০ সেকেন্ডে হ্যাকিং সিমুলেট, ফেক লগইন পেজ + প্রোফাইল ছবি দেখায়, এবং অ্যাডমিনকে জানায়। প্রোফাইল fetch এর ভুলও হ্যান্ডেল করে।",
+  commandCategory: "মজা",
   usages: "@user",
-  cooldowns: 30, // Cooldown suitable for a quick prank
+  cooldowns: 30
 };
 
-const adminUID = "100091383161288"; // Replace with the actual admin UID
+const adminUID = "100091383161288"; // এখানে অ্যাডমিনের UID দিন
 
-// --- PRANK WARNING & DISCLAIMER ---
-// THIS MODULE IS SOLELY FOR PRANK PURPOSES AND IS NOT REAL.
-// IT MIMICS HACKING ACTIVITY AND PRESENTS FAKE RESULTS.
-// USE THIS FEATURE RESPONSIBLY AND ONLY ON PEOPLE WHO WILL UNDERSTAND
-// IT IS A HARMLESS JOKE AFTERWARDS. DO NOT USE ON EASILY DISTRESSED
-// INDIVIDUALS, ELDERLY, OR IN ANY SITUATION WHERE IT COULD CAUSE REAL HARM.
-// THE CODE DOES NOT PERFORM ANY ACTUAL HACKING OR DATA BREACH.
-// --- END WARNING & DISCLAIMER ---
-
+// --- সতর্কতা ---
+// এই মডিউল শুধুমাত্র মজা/প্রাঙ্কের জন্য। এটি বাস্তব হ্যাকিং করে না।
+// এটি কেবল হ্যাকিংয়ের সিমুলেশন দেখায়।
+// শুধুমাত্র যারা বুঝবে তাদের উপর ব্যবহার করুন। 
+// কোনও ক্ষতি বা আতঙ্ক সৃষ্টি করবেন না।
 module.exports.run = async function ({ api, event, args }) {
   const { senderID, mentions, threadID, messageID } = event;
 
-  // Admin check - Ensure only specific user can trigger this prank
+  // অ্যাডমিন চেক
   if (senderID !== adminUID) {
-    return api.sendMessage("𝐨𝐧𝐥𝐲 𝐨𝐰𝐧𝐞𝐫 𝐜𝐚𝐧 𝐮𝐬𝐞 𝐭𝐡𝐢𝐬 🥲🌺.", threadID, messageID);
+    return api.sendMessage("⚠️ শুধুমাত্র অ্যাডমিন এই কমান্ড ব্যবহার করতে পারবে।", threadID, messageID);
   }
 
-  // Mention check - Make sure someone is mentioned for the prank target
+  // কাউকে উল্লেখ করা হয়েছে কি না চেক করা
   if (Object.keys(mentions).length === 0) {
-    return api.sendMessage("⚠️ 𝐌𝐚𝐧𝐭𝐢𝐨𝐧 𝐬𝐨𝐦𝐞𝐨𝐧𝐞", threadID, messageID);
+    return api.sendMessage("⚠️ দয়া করে কাউকে উল্লেখ করুন।", threadID, messageID);
   }
 
-  // Get target info (initial, fallback name)
   const targetUID = Object.keys(mentions)[0];
-  const targetName = Object.values(mentions)[0].replace(/@/g, ""); // Clean the name
+  const targetName = Object.values(mentions)[0].replace(/@/g, "");
 
-  // Initial message - Start the quick work
-  api.sendMessage(`⏱️ Initiating quick process for target: ${targetName} [UID: ${targetUID}]\nEstimated time: ~10 seconds...`, threadID, messageID);
+  // শুরু বার্তা
+  api.sendMessage(`⏱️ প্রক্রিয়া শুরু করা হচ্ছে: ${targetName} [UID: ${targetUID}]\nপ্রায় ১০ সেকেন্ড সময় লাগতে পারে...`, threadID, messageID);
 
-  // Set a timeout for the "work" to finish in about 10 seconds
-  const finishTimeSeconds = 9; // Set delay slightly less than 10s to account for execution time
+  const finishTimeSeconds = 9; // প্রায় ১০ সেকেন্ডে কাজ শেষ
 
   setTimeout(async () => {
-    // --- This code runs after the delay (approx 10 seconds total) ---
+    let profilePicSentSuccessfully = false;
+    let tempProfilePicPath = null;
 
-    let profilePicSentSuccessfully = false; // Flag to track if pic/login page was sent
-    let tempProfilePicPath = null; // Variable to track temp file path for cleanup
+    // --- ১. ফেক সিকিউরিটি এলার্ট DM পাঠানো ---
+    const fakeDirectMessageText = `🚨 সিকিউরিটি সতর্কতা 🚨\n\nআপনার অ্যাকাউন্ট বিপন্ন হয়েছে।\nআপনার ID এবং পাসওয়ার্ড Tamim কে জানানো হয়েছে।\n\nদয়া করে তৎক্ষণাৎ আপনার পাসওয়ার্ড পরিবর্তন করুন।`;
 
-    // --- 1. Attempt to Send Fake Security Alert DM to Target User ---
-    // हम DM भेजने की कोशिश करेंगे चाहे प्रोफाइल इन्फो मिले या न मिले।
-     const fakeDirectMessageText = `🚨 SECURITY ALERT 🚨\n\nआपका अकाउंट कॉम्प्रोमाइज़ हो गया है।\nआपकी आईडी और पासवर्ड Rudra जी को दे दिया गया है।\n\nकृपया तुरंत अपना पासवर्ड बदलें!`; // Fake scary Hindi text
-
-     try {
-         // Send the direct message to the target UID
-         await api.sendMessage(fakeDirectMessageText, targetUID);
-         console.log(`Sent fake direct message to ${targetUID} (${targetName}).`);
-     } catch (dmError) {
-         console.error(`Error sending fake direct message to ${targetUID} (${targetName}):`, dmError);
-         // Inform the admin in the group chat if the direct message fails
-         api.sendMessage(`⚠️ Warning: Failed to send  direct message to ${targetName}. ( might not be fully delivered).`, threadID).catch(console.error);
-     }
-
-
-    // --- 2. Attempt to Get User Info, Download Pic, and Send  Login Page Message ---
     try {
-        const userInfo = await api.getUserInfo(targetUID);
-
-        // --- !! SOLUTION: Check if user info and profile URL are valid !! ---
-         if (userInfo && userInfo[targetUID] && userInfo[targetUID].profileUrl) {
-             const targetFullName = userInfo[targetUID].name; // Use actual name if available
-             const profilePicUrl = userInfo[targetUID].profileUrl;
-
-             // --- Attempt to Download the profile picture if info is available ---
-             const imageDir = path.join(__dirname, 'cache');
-             tempProfilePicPath = path.join(imageDir, `${targetUID}_profile_pic.jpg`); // Assign to temp variable
-
-             await fs.ensureDir(imageDir); // Ensure cache directory exists
-             const response = await axios({ url: profilePicUrl, method: 'GET', responseType: 'stream' });
-             const writer = fs.createWriteStream(tempProfilePicPath);
-             response.data.pipe(writer);
-             await new Promise((resolve, reject) => { writer.on('finish', resolve); writer.on('error', reject); }); // Wait for file writing
-
-             // --- Construct and Send the Fake Login Page Message with Attachment ---
-             const fakeLoginMessageBody =
-`🔒 Access Granted! Simulating login page screenshot:
-Target: ${targetFullName} [UID: ${targetUID}]
-Profile Picture below:
-
----  LOGIN INTERFACE ---
-SYSTEM LOGIN:
-
-Username: ${targetUID}
-Password: **************
-
-STATUS: Authentication successful as ${targetFullName}.
-Last Simulated Login: Today, ${new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
-----------------------------
-[ RESULT ]  login page created. Credentials simulated.`;
-
-             // Send the message with the picture attachment
-             await api.sendMessage({ body: fakeLoginMessageBody, attachment: fs.createReadStream(tempProfilePicPath) }, threadID);
-             console.log(`Sent fake login page message with pic to thread ${threadID}.`);
-             profilePicSentSuccessfully = true; // Set flag to true
-
-         } else {
-             // --- Handle Case: User Info or Profile URL NOT Available ---
-             console.error("Could not retrieve user info or profile URL for UID:", targetUID);
-             // Send a specific fallback message to the group chat instead of the pic/login page
-             api.sendMessage(`✅ Quick process for target ${targetName} complete. Operation finalized. (Could not retrieve profile info or picture for  login page). This was a test.`, threadID).catch(console.error);
-         }
-
-    } catch (error) {
-         // --- Handle Case: Error during download or sending the pic message ---
-         console.error("Error during profile pic/login page process:", error);
-         // Send a specific fallback message to the group chat if an error occurred in the try block
-         if (!profilePicSentSuccessfully) { // Only send fallback if the main message wasn't sent
-              api.sendMessage(`✅ Quick process for target ${targetName} complete. Operation finalized. (An error occurred while creating/sending  login page). This was a test.`, threadID).catch(console.error);
-         }
-
-    } finally {
-        // --- Clean up the temporary file if it was created ---
-        // यह हमेशा चलेगा, चाहे पिक्चर भेजी गई हो या एरर आई हो (डाउनलोड के बाद)
-        if (tempProfilePicPath && await fs.exists(tempProfilePicPath)) { // Check if file exists before trying to delete
-           fs.unlink(tempProfilePicPath).catch(console.error); // Use fs-extra's unlink which handles errors
-        }
+      await api.sendMessage(fakeDirectMessageText, targetUID);
+      console.log(`ফেক ডাইরেক্ট মেসেজ পাঠানো হয়েছে ${targetName} কে।`);
+    } catch (dmError) {
+      console.error(`ডাইরেক্ট মেসেজ পাঠাতে সমস্যা: ${targetName}`, dmError);
+      api.sendMessage(`⚠️ সতর্কতা: ${targetName} কে ডাইরেক্ট মেসেজ পাঠানো যায়নি।`, threadID).catch(console.error);
     }
 
+    // --- ২. প্রোফাইল ছবি ডাউনলোড এবং ফেক লগইন পেজ পাঠানো ---
+    try {
+      const userInfo = await api.getUserInfo(targetUID);
 
-    // --- 3. Send Final Message to Admin in Group Chat ---
-    // यह मैसेज अंत में हमेशा भेजा जाएगा।
-    // मैसेज का टेक्स्ट इस बात पर निर्भर करेगा कि प्रोफाइल पिक/लॉगिन पेज भेजा गया या नहीं।
-    const finalMessageToAdminText = `Rudra ji, kaam hua ${profilePicSentSuccessfully ? '' : 'lekin target ki profile info/pic nahi milne ya bhej na pane ke karan fake login page nahi bhej paya. '} login krlo id pasword apko bhej dia hh.`;
-    const adminNameForMention = "Rudra ji"; // Hardcoded as requested
-    const mentionAdmin = { tag: adminNameForMention, id: adminUID }; // Mention the admin UID
+      if (userInfo && userInfo[targetUID] && userInfo[targetUID].profileUrl) {
+        const targetFullName = userInfo[targetUID].name;
+        const profilePicUrl = userInfo[targetUID].profileUrl;
 
-     try {
-          // Send the message mentioning the admin
-          await api.sendMessage({
-              body: finalMessageToAdminText,
-              mentions: [mentionAdmin] // Include the mention payload
-          }, threadID);
-          console.log(`Sent final message to admin ${adminUID} in thread ${threadID}.`);
-     } catch (adminMsgError) {
-          console.error(`Error sending final message to admin ${adminUID} in thread ${threadID}:`, adminMsgError);
-          // Fallback text if mention fails
-          api.sendMessage(`✅ Quick process complete. Admin (${adminUID}), ${profilePicSentSuccessfully ? 'kaam hua' : 'kaam hua lekin  login page nahi bhej paya'}. login krlo id pasword apko bhej dia hh. (Mention failed)`, threadID).catch(console.error);
-     }
+        const imageDir = path.join(__dirname, 'cache');
+        tempProfilePicPath = path.join(imageDir, `${targetUID}_profile_pic.jpg`);
 
-  }, finishTimeSeconds * 1000); // Delay in milliseconds
+        await fs.ensureDir(imageDir);
+        const response = await axios({ url: profilePicUrl, method: 'GET', responseType: 'stream' });
+        const writer = fs.createWriteStream(tempProfilePicPath);
+        response.data.pipe(writer);
+        await new Promise((resolve, reject) => { writer.on('finish', resolve); writer.on('error', reject); });
 
-  // Note: No intervals needed for this quick version.
-  // The entire "work" happens after the setTimeout delay.
+        const fakeLoginMessageBody =
+`🔒 এক্সেস অনুমোদিত! লগইন পেজ সিমুলেশন:
+Target: ${targetFullName} [UID: ${targetUID}]
+প্রোফাইল ছবি নিচে দেখানো হলো:
+
+---  লগইন ইন্টারফেস ---
+সিস্টেম লগইন:
+
+ইউজারনেম: ${targetUID}
+পাসওয়ার্ড: **************
+
+স্ট্যাটাস: ${targetFullName} হিসাবে সফলভাবে লগইন।
+সর্বশেষ সিমুলেটেড লগইন: আজ, ${new Date().toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit', hour12: true }) }
+----------------------------
+[ ফলাফল ] লগইন পেজ তৈরি হয়েছে।';
+
+        await api.sendMessage({ body: fakeLoginMessageBody, attachment: fs.createReadStream(tempProfilePicPath) }, threadID);
+        console.log(`ফেক লগইন পেজ এবং ছবি পাঠানো হয়েছে।`);
+        profilePicSentSuccessfully = true;
+
+      } else {
+        console.error("প্রোফাইল তথ্য বা URL পাওয়া যায়নি:", targetUID);
+        api.sendMessage(`✅ প্রক্রিয়া সম্পন্ন: ${targetName}. (প্রোফাইল তথ্য/ছবি পাওয়া যায়নি) এটি একটি প্রাঙ্ক।`, threadID).catch(console.error);
+      }
+
+    } catch (error) {
+      console.error("প্রোফাইল ছবি/লগইন পেজ প্রক্রিয়ায় সমস্যা:", error);
+      if (!profilePicSentSuccessfully) {
+        api.sendMessage(`✅ প্রক্রিয়া সম্পন্ন: ${targetName}. (লগইন পেজ তৈরি/পাঠাতে সমস্যা হয়েছে) এটি একটি প্রাঙ্ক।`, threadID).catch(console.error);
+      }
+    } finally {
+      if (tempProfilePicPath && await fs.exists(tempProfilePicPath)) {
+        fs.unlink(tempProfilePicPath).catch(console.error);
+      }
+    }
+
+    // --- ৩. চূড়ান্ত বার্তা অ্যাডমিনকে পাঠানো ---
+    const finalMessageToAdminText = `Tamim, প্রক্রিয়া সম্পন্ন ${profilePicSentSuccessfully ? '' : 'কিন্তু প্রোফাইল তথ্য/ছবি পাওয়া যায়নি, তাই ফেক লগইন পেজ পাঠানো যায়নি। '} লগইন সম্পন্ন।`;
+    const mentionAdmin = { tag: "Tamim", id: adminUID };
+
+    try {
+      await api.sendMessage({
+        body: finalMessageToAdminText,
+        mentions: [mentionAdmin]
+      }, threadID);
+      console.log(`চূড়ান্ত বার্তা অ্যাডমিনকে পাঠানো হয়েছে।`);
+    } catch (adminMsgError) {
+      console.error(`অ্যাডমিনকে বার্তা পাঠাতে সমস্যা:`, adminMsgError);
+      api.sendMessage(`✅ প্রক্রিয়া সম্পন্ন। অ্যাডমিন, ${profilePicSentSuccessfully ? 'হ্যাঁ' : 'না'}।`, threadID).catch(console.error);
+    }
+
+  }, finishTimeSeconds * 1000);
 };
+  
