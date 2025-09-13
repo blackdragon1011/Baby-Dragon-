@@ -36,7 +36,7 @@ module.exports = {
   },
 
   run: async function ({ api, event, args }) {
-    if (!args[0]) return api.sendMessage("🎵 Gana ka naam to likho! 😐", event.threadID);
+    if (!args[0]) return api.sendMessage("🎵 pls enter song name! 😐", event.threadID);
 
     const isVideo = args[0].toLowerCase() === "video";
     const query = isVideo ? args.slice(1).join(" ") : args.join(" ");
@@ -44,7 +44,7 @@ module.exports = {
 
     try {
       const searchRes = await axios.get(searchUrl);
-      if (!searchRes.data.items.length) throw new Error("❌ Gana nahi mila.");
+      if (!searchRes.data.items.length) throw new Error("❌ Don't found song.");
 
       const video = searchRes.data.items[0];
       const videoId = video.id.videoId;
@@ -109,17 +109,17 @@ module.exports = {
   },
 
   run: async function ({ api, event, args }) {
-    if (!args[0]) return api.sendMessage("🎵 Gana ka naam to likho! 😐", event.threadID);
+    if (!args[0]) return api.sendMessage("🎵 write song name! 😐", event.threadID);
 
     const isVideo = args[0].toLowerCase() === "video";
     const query = isVideo ? args.slice(1).join(" ") : args.join(" ");
-    const processingMessage = await api.sendMessage(`🔍 "${query}" dhoondh rahi hoon...`, event.threadID);
+    const processingMessage = await api.sendMessage(`🔍 "${query}" processing...`, event.threadID);
 
     const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&maxResults=1&type=video&key=AIzaSyAGQrBQYworsR7T2gu0nYhLPSsi2WFVrgQ`;
 
     try {
       const searchRes = await axios.get(searchUrl);
-      if (!searchRes.data.items.length) throw new Error("❌ Gana nahi mila.");
+      if (!searchRes.data.items.length) throw new Error("❌ don't found.");
 
       const video = searchRes.data.items[0];
       const videoId = video.id.videoId;
