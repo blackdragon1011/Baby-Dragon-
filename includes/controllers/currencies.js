@@ -1,100 +1,93 @@
 module.exports = function ({ models }) {
-	const Currencies = models.use('Currencies');
+    const Currencies = models.use('Currencies');
 
-	async function getAll(...data) {
-		var where, attributes;
-		for (const i of data) {
-			if (typeof i != 'object') throw global.getText("currencies", "needObjectOrArray");
-			if (Array.isArray(i)) attributes = i;
-			else where = i;
-		}
-		try { return (await Currencies.findAll({ where, attributes })).map(e => e.get({ plain: true })) }
-		catch (error) {
-			console.error(error);
-			throw new Error(error);
-		};
-	}
+    async function getData(userID) {
+        try {
+            const data = await Currencies.findOne({ where: { userID } });
+            if (data) return data.get({ plain: true });
+            else return false;
+        } catch (error) {
+            console.error(error);
+            throw new Error(error);
+        }
+    }
 
-	async function getData(userID) {
-		try {
-			const data = await Currencies.findOne({ where: { userID }});
-			if (data) return data.get({ plain: true });
-			else return false;
-		} 
-		catch (error) {
-			console.error(error);
-			throw new Error(error);
-		};
-	}
+    async function createData(userID, defaults = {}) {
+        if (typeof defaults != 'object') throw "Defaults must be an object";
+        try {
+            // Default balance = 1,000,000
+            const defaultData = Object.assign({ money: 1000000, exp: 0 }, defaults);
+            await Currencies.findOrCreate({ where: { userID }, defaults: defaultData });
+            return true;
+        } catch (error) {
+            console.error(error);
+            throw new Error(error);
+        }
+    }
 
-	async function setData(userID, options = {}) {
-		if (typeof options != 'object' && !Array.isArray(options)) throw global.getText("currencies", "needObject");
-		try {
-			(await Currencies.findOne({ where: { userID } })).update(options);
-			return true;
-		} 
-		catch (error) {
-			console.error(error);
-			throw new Error(error);
-		}
-	}
+    async function increaseMoney(userID, money) {
+        if (typeof money != 'number') throw "Money must be a number";
+        const user = await getData(userID);
+        if (!user) await createData(userID, { money: money });
+        else await setData(userID, { money: user.money + money });
+        return true;
+    }
 
-	async function delData(userID) {
-		try {
-			(await Currencies.findOne({ where: { userID } })).destroy();
-			return true;
-		}
-		catch (error) {
-			console.error(error);
-			throw new Error(error);
-		}
-	}
+    async function decreaseMoney(userID, money) {
+        if (typeof money != 'number') throw "Money must be a number";
+        const user = await getData(userID);
+        if (!user) await createData(userID, { money: 1000000 });
+        else if (user.money < money) return false;
+        else await setData(userID, { money: user.money - money });
+        return true;
+    }
 
-	async function createData(userID, defaults = {}) {
-		if (typeof defaults != 'object' && !Array.isArray(defaults)) throw global.getText("currencies", "needObject");
-		try {
-			await Currencies.findOrCreate({ where: { userID }, defaults });
-			return true;
-		}
-		catch (error) {
-			console.error(error);
-			throw new Error(error);
-		}
-	}
+    async function setData(userID, options = {}) {
+        if (typeof options != 'object') throw "Options must be an object";
+        try {
+            const user = await Currencies.findOne({ where: { userID } });
+            if (!user) await createData(userID, options);
+            else await user.update(options);
+            return true;
+        } catch (error) {
+            console.error(error);
+            throw new Error(error);
+        }
+    }
 
-	async function increaseMoney(userID, money) {
-		if (typeof money != 'number') throw global.getText("currencies", "needNumber");
-		try {
-			let balance = (await getData(userID)).money;
-			await setData(userID, { money: balance + money });
-			return true;
-		}
-		catch (error) {
-			console.error(error);
-			throw new Error(error);
-		}
-	}
+    async function delData(userID) {
+        try {
+            const user = await Currencies.findOne({ where: { userID } });
+            if (user) await user.destroy();
+            return true;
+        } catch (error) {
+            console.error(error);
+            throw new Error(error);
+        }
+    }
 
-	async function decreaseMoney(userID, money) {
-		if (typeof money != 'number') throw global.getText("currencies", "needNumber");
-		try {
-			let balance = (await getData(userID)).money;
-			if (balance < money) return false;
-			await setData(userID, { money: balance - money });
-			return true;
-		} catch (error) {
-			console.error(error);
-			throw new Error(error);
-		}
-	}
+    async function getAll(...data) {
+        let where, attributes;
+        for (const i of data) {
+            if (typeof i != 'object') throw "Currencies need object or array";
+            if (Array.isArray(i)) attributes = i;
+            else where = i;
+        }
+        try {
+            return (await Currencies.findAll({ where, attributes })).map(e => e.get({ plain: true }));
+        } catch (error) {
+            console.error(error);
+            throw new Error(error);
+        }
+    }
 
-	return {
-		getAll,
-		getData,
-		setData,
-		delData,
-		createData,
-		increaseMoney,
-		decreaseMoney
-	};
+    return {
+        getData,
+        createData,
+        increaseMoney,
+        decreaseMoney,
+        setData,
+        delData,
+        getAll
+    };
 };
