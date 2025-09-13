@@ -13,10 +13,10 @@ const formatMoney = (number) => {
 
 module.exports.config = {
   name: "slot",
-  version: "6.0.0",
+  version: "6.3.0",
   hasPermssion: 0,
   credits: "Priyansh Rajput + Modified by Tamim",
-  description: "Spinning style Game Machine slot",
+  description: "Slot machine with fancy output and recent balance",
   commandCategory: "game-sp",
   usages: "[bet amount]",
   cooldowns: 5,
@@ -27,7 +27,8 @@ module.exports.run = async function({ api, event, args, Currencies }) {
   const { getData, increaseMoney, decreaseMoney } = Currencies;
 
   const slotItems = ["🍇", "🍉", "🍊", "🍏", "7️⃣", "🍓", "🍒", "🍌", "🥝", "🥑", "🌽"];
-  const moneyUser = (await getData(senderID)).money;
+  const userData = await getData(senderID);
+  const moneyUser = userData.money;
 
   var moneyBet = formatBet(args[0]);
   if (!moneyBet || isNaN(moneyBet) || moneyBet <= 0)
@@ -47,44 +48,44 @@ module.exports.run = async function({ api, event, args, Currencies }) {
   const randomChance = Math.random() < 0.5;
 
   if (finalSlot[0] == finalSlot[1] && finalSlot[1] == finalSlot[2]) {
-    reward = moneyBet * 9; 
+    reward = moneyBet * 9;
     win = true;
   } 
   else if (finalSlot[0] == finalSlot[1] || finalSlot[0] == finalSlot[2] || finalSlot[1] == finalSlot[2]) {
-    reward = moneyBet * 2; 
+    reward = moneyBet * 2;
     win = true;
   } 
-  else if (randomChance) { 
-    reward = Math.floor(moneyBet * 1.5); 
+  else if (randomChance) {
+    reward = Math.floor(moneyBet * 1.5);
     win = true;
   } 
   else {
     reward = moneyBet;
   }
 
-  // Initial spinning animation
-  let spinMsg = await api.sendMessage(`🎰 SLOT MACHINE 🎰\n━━━━━━━━━━━━━━━\n❓ | ❓ | ❓\n━━━━━━━━━━━━━━━\nSpinning... 🎡`, threadID, messageID);
+  // Short spinning preview
+  const spinPreview = [];
+  for (let i = 0; i < 3; i++) spinPreview[i] = slotItems[Math.floor(Math.random() * slotItems.length)];
+  const spinMsg = await api.sendMessage(`🎰 SLOT MACHINE 🎰\n━━━━━━━━━━━━━━━\n${spinPreview[0]} | ${spinPreview[1]} | ${spinPreview[2]}\n━━━━━━━━━━━━━━━\nSpinning... 🎡`, threadID);
 
-  for (let i = 0; i < 10; i++) {
-    let tempSlot = [];
-    for (let j = 0; j < 3; j++) tempSlot[j] = slotItems[Math.floor(Math.random() * slotItems.length)];
-    await new Promise(resolve => setTimeout(resolve, 500)); // 0.5s delay
-    await api.unsendMessage(spinMsg.messageID); // delete previous
-    spinMsg = await api.sendMessage(`🎰 SLOT MACHINE 🎰\n━━━━━━━━━━━━━━━\n${tempSlot[0]} | ${tempSlot[1]} | ${tempSlot[2]}\n━━━━━━━━━━━━━━━\nSpinning... 🎡`, threadID);
-  }
+  await new Promise(resolve => setTimeout(resolve, 1500));
+  await api.unsendMessage(spinMsg.messageID);
 
-  // Show final result
-  let resultText = `🎰 SLOT MACHINE 🎰\n━━━━━━━━━━━━━━━\n${slotItems[finalSlot[0]]} | ${slotItems[finalSlot[1]]} | ${slotItems[finalSlot[2]]}\n━━━━━━━━━━━━━━━`;
+  // Update balance
+  if (win) await increaseMoney(senderID, reward);
+  else await decreaseMoney(senderID, reward);
+
+  const newBalance = (await getData(senderID)).money;
+
+  // Fancy output
+  let resultText = `🎰 𝗦𝗟𝗢𝗧 𝗠𝗔𝗖𝗛𝗜𝗡𝗘 🎰\n━━━━━━━━━━━━━━━\n${slotItems[finalSlot[0]]} | ${slotItems[finalSlot[1]]} | ${slotItems[finalSlot[2]]}\n━━━━━━━━━━━━━━━\n`;
 
   if (win) {
-    resultText += `\n✅ You WIN!\n💰 Prize: ${formatMoney(reward)}$`;
-    await increaseMoney(senderID, reward);
+    resultText += `✅ 𝗬𝗢𝗨 𝗪𝗜𝗡!\n💰 Prize: ${formatMoney(reward)}$\n💵 Previous Balance: ${formatMoney(moneyUser)}$\n💎 Current Balance: ${formatMoney(newBalance)}$`;
   } else {
-    resultText += `\n❌ You LOSE!\n💸 Lost: ${formatMoney(reward)}$`;
-    await decreaseMoney(senderID, reward);
+    resultText += `❌ 𝗬𝗢𝗨 𝗟𝗢𝗦𝗘!\n💸 Lost: ${formatMoney(reward)}$\n💵 Previous Balance: ${formatMoney(moneyUser)}$\n💎 Current Balance: ${formatMoney(newBalance)}$`;
   }
 
-  await api.unsendMessage(spinMsg.messageID);
   api.sendMessage(resultText, threadID);
 };
-	
+	  
