@@ -37,7 +37,7 @@ module.exports = {
 
   run: async function ({ api, event, args }) {
     if (args.length === 0) {
-      return api.sendMessage("⚠️ Gaane ka naam to likho na! 😒", event.threadID);
+      return api.sendMessage("⚠️ write the song name! 😒", event.threadID);
     }
 
     const songName = args.join(" ");
@@ -45,7 +45,7 @@ module.exports = {
     try {
       const searchResults = await ytSearch(songName);
       if (!searchResults || searchResults.videos.length < 1) {
-        throw new Error("Kuch nahi mila! Gaane ka naam sahi likho. 😑");
+        throw new Error("Please write the song name. 😑");
       }
 
       const topResults = searchResults.videos.slice(0, 7);
@@ -109,7 +109,7 @@ module.exports = {
     try {
       const downloadResponse = await axios.get(apiUrl);
       if (!downloadResponse.data.file_url) {
-        throw new Error("Download fail ho gaya. 😭");
+        throw new Error("Download failed😶");
       }
 
       const downloadUrl = downloadResponse.data.file_url.replace("http:", "https:");
@@ -126,7 +126,7 @@ module.exports = {
               file.close(resolve);
             });
           } else {
-            reject(new Error(`Download fail ho gaya. Status: ${response.statusCode}`));
+            reject(new Error(`Download failed. Status: ${response.statusCode}`));
           }
         }).on("error", (error) => {
           fs.unlinkSync(downloadPath);
@@ -139,7 +139,7 @@ module.exports = {
       await api.sendMessage(
         {
           attachment: fs.createReadStream(downloadPath),
-          body: `🎶 **Title:** ${selectedVideo.title}\nLijiye! Aapka pasandida gaana! 😍`,
+          body: `🎶 **Title:** ${selectedVideo.title}\nLijiye! Your favorite song  😍`,
         },
         threadID
       );
