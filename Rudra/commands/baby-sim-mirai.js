@@ -1,7 +1,6 @@
 const axios = require('axios');
 
-const baseApiUrl = async () => {
-    const base = await axios.get(`https://baby-msg-api.onrender.com/main/baseApiUrl.json`);
+const baseApiUrl = async () => "https://baby-msg-api.onrender.com";
     return base.data.api;
 };
 
