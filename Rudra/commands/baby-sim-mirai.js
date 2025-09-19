@@ -1,9 +1,7 @@
 const axios = require('axios');
 
 const baseApiUrl = async () => "https://baby-msg-api.onrender.com";
-    return base.data.api;
-};
-
+    
 module.exports.config = {
   name: "baby",
   version: "6.9.9",
