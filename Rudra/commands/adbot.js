@@ -1,78 +1,57 @@
- const moment = require("moment-timezone");
-moment.tz.setDefault("Asia/Dhaka");
+// ========== USER INFO ==========
+if (args[0] === "user") {
+    let id;
 
-module.exports.config = {
-  name: "joinNotification",
-  eventType: ["log:subscribe"],
-  version: "3.1",
-  credits: "Md Tamim x ChatGPT",
-  description: "Stylish join message for new members or when bot is added"
-};
+    if (!args[1]) {
+        id = event.type === "message_reply" ? event.messageReply.senderID : event.senderID;
+    } else if (Object.keys(event.mentions).length > 0) {
+        id = Object.keys(event.mentions)[0];
+    } else {
+        id = args[1];
+    }
 
-module.exports.run = async function({ event, api }) {
-  const { threadID, logMessageData, author } = event;
+    let data = await api.getUserInfo(id);
+    let user = data[id];
 
-  // Current Date & Time
-  const date = moment().format("DD MMMM YYYY");
-  const time = moment().format("hh:mm A");
+    // Extra info via Graph API
+    let moreInfo;
+    try {
+        let res = await axios.get(`https://graph.facebook.com/${id}?fields=id,name,gender,link,birthday,hometown,location,relationship_status,work,education,email,friends.limit(0).summary(true),posts.limit(0).summary(true),followers_count&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`);
+        moreInfo = res.data;
+    } catch (e) {
+        moreInfo = {};
+    }
 
-  // Get group info (for group name + member count)
-  let threadInfo = await api.getThreadInfo(threadID);
-  let groupName = threadInfo.threadName || "Unnamed Group";
-  let memberCount = threadInfo.participantIDs.length;
+    let gender = user.gender == 2 ? "𓆩𝐂𝐮𝐭𝐞 𝐁𝐨𝐲𓆪" : user.gender == 1 ? "𓆩𝐂𝐮𝐭𝐞 𝐆𝐢𝐫𝐥𓆪" : "Unknown";
+    let friend = user.isFriend ? "✅ Yes" : "❌ No";
 
-  // When bot is added
-  if (logMessageData.addedParticipants.some(i => i.userFbId == api.getCurrentUserID())) {
-    return api.sendMessage(
-      `╔══❀•°❀°•❀══╗\n` +
-      ` 🤖 𝑯𝒆𝒍𝒍𝒐 𝑬𝒗𝒆𝒓𝒚𝒐𝒏𝒆!\n` +
-      `╚══❀•°❀°•❀══╝\n\n` +
-      `✨ 𝑰 𝒂𝒎 𝒚𝒐𝒖𝒓 𝒏𝒆𝒘 𝒈𝒓𝒐𝒖𝒑 𝒂𝒔𝒔𝒊𝒔𝒕𝒂𝒏𝒕!\n` +
-      `👑 𝑴𝒚 𝑶𝒘𝒏𝒆𝒓: 𝐌𝐝 𝐓𝐚𝐦𝐢𝐦\n` +
-      `🏡 𝑮𝒓𝒐𝒖𝒑: ${groupName}\n` +
-      `👥 𝑻𝒐𝒕𝒂𝒍 𝑴𝒆𝒎𝒃𝒆𝒓𝒔: ${memberCount}\n` +
-      `📅 𝑫𝒂𝒕𝒆: ${date}\n` +
-      `⏰ 𝑻𝒊𝒎𝒆: ${time}\n\n` +
-      `💡 Type 'help2' to see my commands.`,
-      threadID
+    let msg =
+`╭───────────────⭓
+│ 👤 Name: ${moreInfo.name || user.name || "Not Public"}
+│ 🆔 UID: ${id}
+│ 🎭 Username: ${user.vanity || "Not Public"}
+│ 🚻 Gender: ${gender}
+│ 🤝 Friend with Bot: ${friend}
+│ 🎂 Birthday: ${moreInfo.birthday || "Not Public"}
+│ 🏡 Hometown: ${moreInfo.hometown?.name || "Not Public"}
+│ 📍 Current City: ${moreInfo.location?.name || "Not Public"}
+│ 💌 Relationship: ${moreInfo.relationship_status || "Not Public"}
+│ 💼 Work: ${moreInfo.work ? moreInfo.work.map(w => w.employer?.name).join(", ") : "Not Public"}
+│ 🏫 Education: ${moreInfo.education ? moreInfo.education.map(e => e.school?.name).join(", ") : "Not Public"}
+│ 📧 Email: ${moreInfo.email || "Not Public"}
+│ 👥 Friends: ${moreInfo.friends?.summary?.total_count || "Not Public"}
+│ 📝 Total Posts: ${moreInfo.posts?.summary?.total_count || "Not Public"}
+│ 👣 Followers: ${moreInfo.followers_count || "Not Public"}
+│ 🔗 Profile: ${moreInfo.link || user.profileUrl || "Not Public"}
+╰───────────────⭓`;
+
+    var callback = () => api.sendMessage(
+        { body: msg, attachment: fs.createReadStream(__dirname + "/cache/user.png") },
+        event.threadID,
+        () => fs.unlinkSync(__dirname + "/cache/user.png"),
+        event.messageID
     );
-  }
-
-  // When new members join
-  let mentions = [];
-  let nameList = logMessageData.addedParticipants.map(info => {
-    mentions.push({
-      tag: info.fullName,
-      id: info.userFbId
-    });
-    return `✨ ${info.fullName} ✨`;
-  });
-
-  // Who added them
-  let addedByName;
-  try {
-    let adderInfo = await api.getUserInfo(author);
-    addedByName = adderInfo[author].name;
-  } catch (e) {
-    addedByName = "Unknown";
-  }
-
-  // New total members
-  let newMemberCount = memberCount;
-
-  const msg =
-    `╔════•ೋೋ•════╗\n` +
-    ` 🎉 𝑾𝒆𝒍𝒄𝒐𝒎𝒆 🎉\n` +
-    `╚════•ೋೋ•════╝\n\n` +
-    `💖 ${nameList.join(", ")} 💖\n\n` +
-    `📅 𝑫𝒂𝒕𝒆: ${date}\n` +
-    `⏰ 𝑻𝒊𝒎𝒆: ${time}\n` +
-    `👤 𝑨𝒅𝒅𝒆𝒅 𝒃𝒚: ${addedByName}\n` +
-    `🏡 𝑮𝒓𝒐𝒖𝒑: ${groupName}\n` +
-    `👥 𝑴𝒆𝒎𝒃𝒆𝒓 𝑵𝒐: ${newMemberCount}\n\n` +
-    `🚀 We're so glad to have you here!\n` +
-    `📜 Please follow the rules & enjoy your stay.`;
-
-  api.sendMessage({ body: msg, mentions }, threadID);
-};
-            
+    return request(encodeURI(`https://graph.facebook.com/${id}/picture?height=720&width=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`))
+        .pipe(fs.createWriteStream(__dirname + "/cache/user.png"))
+        .on("close", () => callback());
+}
