@@ -1,141 +1,78 @@
+ const moment = require("moment-timezone");
+moment.tz.setDefault("Asia/Dhaka");
+
 module.exports.config = {
-    name: "ckbot",
-    version: "2.0.0",
-    hasPermssion: 0,
-    credits: "Tamim",
-    description: "Check User/Box/Admin stylish info",
-    commandCategory: "Info",
-    usages: "[user/box/admin]",
-    cooldowns: 3,
-    dependencies: {
-        "request": "",
-        "fs-extra": "",
-        "axios": ""
-    }
+  name: "joinNotification",
+  eventType: ["log:subscribe"],
+  version: "3.1",
+  credits: "Md Tamim x ChatGPT",
+  description: "Stylish join message for new members or when bot is added"
 };
 
-module.exports.run = async ({ api, event, args }) => {
-    const fs = require("fs-extra");
-    const request = require("request");
-    const axios = require("axios");
+module.exports.run = async function({ event, api }) {
+  const { threadID, logMessageData, author } = event;
 
-    // ========== HELP ==========
-    if (args.length === 0) {
-        return api.sendMessage(
-`📌 You can use:
+  // Current Date & Time
+  const date = moment().format("DD MMMM YYYY");
+  const time = moment().format("hh:mm A");
 
-🔹 ckbot user → Get your info
-🔹 ckbot user @[Tag] → Tagged user info
-🔹 ckbot user <uid> → UID user info
-🔹 ckbot box → Group info
-🔹 ckbot admin → Admin info`, 
-event.threadID, event.messageID);
-    }
+  // Get group info (for group name + member count)
+  let threadInfo = await api.getThreadInfo(threadID);
+  let groupName = threadInfo.threadName || "Unnamed Group";
+  let memberCount = threadInfo.participantIDs.length;
 
-    // ========== BOX INFO ==========
-    if (args[0] === "box") {
-        let threadInfo = await api.getThreadInfo(event.threadID);
-        let img = threadInfo.imageSrc;
+  // When bot is added
+  if (logMessageData.addedParticipants.some(i => i.userFbId == api.getCurrentUserID())) {
+    return api.sendMessage(
+      `╔══❀•°❀°•❀══╗\n` +
+      ` 🤖 𝑯𝒆𝒍𝒍𝒐 𝑬𝒗𝒆𝒓𝒚𝒐𝒏𝒆!\n` +
+      `╚══❀•°❀°•❀══╝\n\n` +
+      `✨ 𝑰 𝒂𝒎 𝒚𝒐𝒖𝒓 𝒏𝒆𝒘 𝒈𝒓𝒐𝒖𝒑 𝒂𝒔𝒔𝒊𝒔𝒕𝒂𝒏𝒕!\n` +
+      `👑 𝑴𝒚 𝑶𝒘𝒏𝒆𝒓: 𝐌𝐝 𝐓𝐚𝐦𝐢𝐦\n` +
+      `🏡 𝑮𝒓𝒐𝒖𝒑: ${groupName}\n` +
+      `👥 𝑻𝒐𝒕𝒂𝒍 𝑴𝒆𝒎𝒃𝒆𝒓𝒔: ${memberCount}\n` +
+      `📅 𝑫𝒂𝒕𝒆: ${date}\n` +
+      `⏰ 𝑻𝒊𝒎𝒆: ${time}\n\n` +
+      `💡 Type 'help2' to see my commands.`,
+      threadID
+    );
+  }
 
-        let males = threadInfo.userInfo.filter(u => u.gender === "MALE").length;
-        let females = threadInfo.userInfo.filter(u => u.gender === "FEMALE").length;
+  // When new members join
+  let mentions = [];
+  let nameList = logMessageData.addedParticipants.map(info => {
+    mentions.push({
+      tag: info.fullName,
+      id: info.userFbId
+    });
+    return `✨ ${info.fullName} ✨`;
+  });
 
-        let pd = threadInfo.approvalMode ? "✅ On" : "❌ Off";
-        let link = `https://fb.com/${event.threadID}`;
+  // Who added them
+  let addedByName;
+  try {
+    let adderInfo = await api.getUserInfo(author);
+    addedByName = adderInfo[author].name;
+  } catch (e) {
+    addedByName = "Unknown";
+  }
 
-        let msg =
-`╭───────────────⭓
-│ 📛 Group: ${threadInfo.threadName}
-│ 🆔 TID: ${event.threadID}
-│ 🔗 Link: ${link}
-│ ⚙️ Approval: ${pd}
-│ 😀 Emoji: ${threadInfo.emoji}
-│ 😃 Members: ${threadInfo.participantIDs.length}
-│ 👑 Admins: ${threadInfo.adminIDs.length}
-│ 🚹 Boys: ${males}
-│ 🚺 Girls: ${females}
-│ 💬 Messages: ${threadInfo.messageCount}
-╰───────────────⭓`;
+  // New total members
+  let newMemberCount = memberCount;
 
-        if (!img) return api.sendMessage(msg, event.threadID, event.messageID);
+  const msg =
+    `╔════•ೋೋ•════╗\n` +
+    ` 🎉 𝑾𝒆𝒍𝒄𝒐𝒎𝒆 🎉\n` +
+    `╚════•ೋೋ•════╝\n\n` +
+    `💖 ${nameList.join(", ")} 💖\n\n` +
+    `📅 𝑫𝒂𝒕𝒆: ${date}\n` +
+    `⏰ 𝑻𝒊𝒎𝒆: ${time}\n` +
+    `👤 𝑨𝒅𝒅𝒆𝒅 𝒃𝒚: ${addedByName}\n` +
+    `🏡 𝑮𝒓𝒐𝒖𝒑: ${groupName}\n` +
+    `👥 𝑴𝒆𝒎𝒃𝒆𝒓 𝑵𝒐: ${newMemberCount}\n\n` +
+    `🚀 We're so glad to have you here!\n` +
+    `📜 Please follow the rules & enjoy your stay.`;
 
-        var callback = () => api.sendMessage(
-            { body: msg, attachment: fs.createReadStream(__dirname + "/cache/box.png") },
-            event.threadID,
-            () => fs.unlinkSync(__dirname + "/cache/box.png"),
-            event.messageID
-        );
-        return request(encodeURI(img))
-            .pipe(fs.createWriteStream(__dirname + "/cache/box.png"))
-            .on("close", () => callback());
-    }
-
-    // ========== ADMIN INFO ==========
-    if (args[0] === "admin") {
-        var callback = () => api.sendMessage(
-            { body: `╭───────────────⭓\n│ 👑 ADMIN BOT INFO\n│\n│ 👤 Name: 𝐌𝐝 𝐓𝐚𝐦𝐢𝐦 🥲\n│ 🔗 Facebook: m.facebook.com/niraba.anubhuti.126694\n│ 💖 Thanks for using ${global.config.BOTNAME}!\n╰───────────────⭓`, attachment: fs.createReadStream(__dirname + "/cache/admin.png") },
-            event.threadID,
-            () => fs.unlinkSync(__dirname + "/cache/admin.png"),
-            event.messageID
-        );
-        return request(encodeURI(`https://graph.facebook.com/100091383161288/picture?height=720&width=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`))
-            .pipe(fs.createWriteStream(__dirname + "/cache/admin.png"))
-            .on("close", () => callback());
-    }
-
-    // ========== USER INFO ==========
-    if (args[0] === "user") {
-        let id;
-
-        if (!args[1]) {
-            id = event.type === "message_reply" ? event.messageReply.senderID : event.senderID;
-        } else if (Object.keys(event.mentions).length > 0) {
-            id = Object.keys(event.mentions)[0];
-        } else {
-            id = args[1];
-        }
-
-        let data = await api.getUserInfo(id);
-        let user = data[id];
-
-        // Extra info via Graph API
-        let moreInfo;
-        try {
-            let res = await axios.get(`https://graph.facebook.com/${id}?fields=id,name,birthday,gender,link,locale,hometown,location,relationship_status,work,education,email&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`);
-            moreInfo = res.data;
-        } catch (e) {
-            moreInfo = {};
-        }
-
-        let gender = user.gender == 2 ? "𓆩𝐂𝐮𝐭𝐞 𝐁𝐨𝐲𓆪" : user.gender == 1 ? "𓆩𝐂𝐮𝐭𝐞 𝐆𝐢𝐫𝐥𓆪" : "Unknown";
-        let friend = user.isFriend ? "✅ Yes" : "❌ No";
-
-        let msg =
-`╭───────────────⭓
-│ 👤 Name: ${moreInfo.name || user.name}
-│ 🆔 UID: ${id}
-│ 🎭 Username: ${user.vanity || "N/A"}
-│ 🚻 Gender: ${gender}
-│ 🤝 Friend with Bot: ${friend}
-│ 🎂 Birthday: ${moreInfo.birthday || "Not Public"}
-│ 🏡 Hometown: ${moreInfo.hometown?.name || "Not Public"}
-│ 📍 Current City: ${moreInfo.location?.name || "Not Public"}
-│ 💌 Relationship: ${moreInfo.relationship_status || "Not Public"}
-│ 💼 Work: ${moreInfo.work ? moreInfo.work.map(w => w.employer?.name).join(", ") : "Not Public"}
-│ 🏫 Education: ${moreInfo.education ? moreInfo.education.map(e => e.school?.name).join(", ") : "Not Public"}
-│ 📧 Email: ${moreInfo.email || "Not Public"}
-│ 🔗 Profile: ${moreInfo.link || user.profileUrl}
-╰───────────────⭓`;
-
-        var callback = () => api.sendMessage(
-            { body: msg, attachment: fs.createReadStream(__dirname + "/cache/user.png") },
-            event.threadID,
-            () => fs.unlinkSync(__dirname + "/cache/user.png"),
-            event.messageID
-        );
-        return request(encodeURI(`https://graph.facebook.com/${id}/picture?height=720&width=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`))
-            .pipe(fs.createWriteStream(__dirname + "/cache/user.png"))
-            .on("close", () => callback());
-    }
+  api.sendMessage({ body: msg, mentions }, threadID);
 };
-    
+            
