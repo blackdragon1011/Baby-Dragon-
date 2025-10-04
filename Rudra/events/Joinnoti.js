@@ -2,76 +2,53 @@ const moment = require("moment-timezone");
 moment.tz.setDefault("Asia/Dhaka");
 
 module.exports.config = {
-  name: "joinNotification",
+  name: "welcome",
   eventType: ["log:subscribe"],
-  version: "3.1",
-  credits: "Md Tamim x ChatGPT",
-  description: "Stylish join message for new members or when bot is added"
+  version: "6.0.0",
+  author: "MD Tamim",
+  description: "Stylish welcome with detailed ChatBot info",
+  category: "Group"
 };
 
-module.exports.run = async function({ event, api }) {
-  const { threadID, logMessageData, author } = event;
-
-  // Current Date & Time
-  const date = moment().format("DD MMMM YYYY");
-  const time = moment().format("hh:mm A");
-
-  // Get group info (for group name + member count)
-  let threadInfo = await api.getThreadInfo(threadID);
-  let groupName = threadInfo.threadName || "Unnamed Group";
-  let memberCount = threadInfo.participantIDs.length;
-
-  // When bot is added
-  if (logMessageData.addedParticipants.some(i => i.userFbId == api.getCurrentUserID())) {
-    return api.sendMessage(
-      `╔══❀•°❀°•❀══╗\n` +
-      ` 🤖 𝑯𝒆𝒍𝒍𝒐 𝑬𝒗𝒆𝒓𝒚𝒐𝒏𝒆!\n` +
-      `╚══❀•°❀°•❀══╝\n\n` +
-      `✨ 𝑰 𝒂𝒎 𝒚𝒐𝒖𝒓 𝒏𝒆𝒘 𝒈𝒓𝒐𝒖𝒑 𝒂𝒔𝒔𝒊𝒔𝒕𝒂𝒏𝒕!\n` +
-      `👑 𝑴𝒚 𝑶𝒘𝒏𝒆𝒓: 𝐌𝐝 𝐓𝐚𝐦𝐢𝐦\n` +
-      `🏡 𝑮𝒓𝒐𝒖𝒑: ${groupName}\n` +
-      `👥 𝑻𝒐𝒕𝒂𝒍 𝑴𝒆𝒎𝒃𝒆𝒓𝒔: ${memberCount}\n` +
-      `📅 𝑫𝒂𝒕𝒆: ${date}\n` +
-      `⏰ 𝑻𝒊𝒎𝒆: ${time}\n\n` +
-      `💡 Type 'help2' to see my commands.`,
-      threadID
-    );
-  }
-
-  // When new members join
-  let mentions = [];
-  let nameList = logMessageData.addedParticipants.map(info => {
-    mentions.push({
-      tag: info.fullName,
-      id: info.userFbId
-    });
-    return `✨ ${info.fullName} ✨`;
-  });
-
-  // Who added them
-  let addedByName;
+module.exports.run = async function({ api, event }) {
   try {
-    let adderInfo = await api.getUserInfo(author);
-    addedByName = adderInfo[author].name;
-  } catch (e) {
-    addedByName = "Unknown";
+    if (event.logMessageType === "log:subscribe") {
+      const threadInfo = await api.getThreadInfo(event.threadID);
+      const groupName = threadInfo.threadName || "Unknown Group";
+      const groupMembers = threadInfo.participantIDs.length;
+      const added = event.logMessageData.addedParticipants;
+      const now = moment().format("dddd, MMMM Do YYYY, h:mm A");
+
+      for (let user of added) {
+        const msg = `
+╔════════✦✧✦════════╗
+        ✨ 𝓦𝓔𝓛𝓒𝓞𝓜𝓔 ✨
+╚════════✦✧✦════════╝
+
+👤 𝐇𝐞𝐥𝐥𝐨 ${user.fullName}  
+🏰 𝐆𝐫𝐨𝐮𝐩 ➤ ${groupName}  
+👥 𝐓𝐨𝐭𝐚𝐥 𝐌𝐞𝐦𝐛𝐞𝐫𝐬 ➤ ${groupMembers}  
+⏰ 𝐉𝐨𝐢𝐧𝐞𝐝 𝐀𝐭 ➤ ${now}  
+
+🤖 𝐈 𝐚𝐦 𝐀𝐈 𝐂𝐡𝐚𝐭𝐁𝐨𝐭  
+👑 𝐎𝐰𝐧𝐞𝐝 𝐛𝐲 ➤ 𝐌𝐃 𝐓𝐚𝐦𝐢𝐦  
+
+━━━━━━━━━━━━━━━
+📌 𝑰𝒏𝒇𝒐:  
+✅ আমি একটি *চ্যাটবট রোবট* 🤖  
+✅ আমার কাজ হলো তোমাদের সাথে কথা বলা 🗣️  
+✅ মজা দেওয়া, সাহায্য করা আর এন্টারটেইন করা 🎭  
+✅ আমি ২৪/৭ অনলাইনে থাকি ⏰  
+✅ মালিক আমাকে সবসময় নতুন ফিচার দেয় 💡  
+
+━━━━━━━━━━━━━━━
+        `;
+
+        api.sendMessage(msg, event.threadID);
+      }
+    }
+  } catch (err) {
+    // error হলে কিছুই show করবে না, শুধু console এ log হবে
+    console.log("Welcome Command Error:", err.message);
   }
-
-  // New total members
-  let newMemberCount = memberCount;
-
-  const msg =
-    `╔════•ೋೋ•════╗\n` +
-    ` 🎉 𝑾𝒆𝒍𝒄𝒐𝒎𝒆 🎉\n` +
-    `╚════•ೋೋ•════╝\n\n` +
-    `💖 ${nameList.join(", ")} 💖\n\n` +
-    `📅 𝑫𝒂𝒕𝒆: ${date}\n` +
-    `⏰ 𝑻𝒊𝒎𝒆: ${time}\n` +
-    `👤 𝑨𝒅𝒅𝒆𝒅 𝒃𝒚: ${addedByName}\n` +
-    `🏡 𝑮𝒓𝒐𝒖𝒑: ${groupName}\n` +
-    `👥 𝑴𝒆𝒎𝒃𝒆𝒓 𝑵𝒐: ${newMemberCount}\n\n` +
-    `🚀 We're so glad to have you here!\n` +
-    `📜 Please follow the rules & enjoy your stay.`;
-
-  api.sendMessage({ body: msg, mentions }, threadID);
 };
