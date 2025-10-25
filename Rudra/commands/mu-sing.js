@@ -1,104 +1,111 @@
 const axios = require("axios");
 const fs = require("fs");
+const yts = require("yt-search");
 const path = require("path");
-const ytSearch = require("yt-search");
+
+const cacheDir = path.join(__dirname, "/cache");
 
 module.exports = {
   config: {
     name: "sing",
-    version: "1.0.3",
-    hasPermssion: 0,
-    credits: "𝐏𝐫𝐢𝐲𝐚𝐧𝐬𝐡 𝐑𝐚𝐣𝐩𝐮𝐭",
-    description: "Download YouTube song from keyword search and link",
-    commandCategory: "Media",
-    usages: "[songName] [type]",
-    cooldowns: 5,
-    dependencies: {
-      "node-fetch": "",
-      "yt-search": "",
-    },
+    version: "3.0",
+    author: "Priyanshu Rajput",
+    description: { en: "Search and download audio from YouTube using Priyanshu API" },
+    category: "media",
+    guide: { en: "{pn} <search term> — search YouTube and download song (M4A format)" }
   },
 
-  run: async function ({ api, event, args }) {
-    let songName, type;
+  onStart: async ({ api, args, event }) => {
+    if (!args.length)
+      return api.sendMessage(
+        "❌ Usage: {prefix} sing <search term>",
+        event.threadID,
+        event.messageID
+      );
 
-    if (
-      args.length > 1 &&
-      (args[args.length - 1] === "audio" || args[args.length - 1] === "video")
-    ) {
-      type = args.pop();
-      songName = args.join(" ");
-    } else {
-      songName = args.join(" ");
-      type = "audio";
-    }
-
-    const processingMessage = await api.sendMessage(
-      "✅ Processing your request. Please wait...",
-      event.threadID,
-      null,
-      event.messageID
-    );
+    const query = args.join(" ");
+    api.setMessageReaction("⏳", event.messageID, () => {}, true);
 
     try {
-      const searchResults = await ytSearch(songName);
-      if (!searchResults || !searchResults.videos.length) {
-        throw new Error("No results found for your search query.");
+      // Step 1: Search video on YouTube
+      const search = await yts(query);
+      const video = search.videos[0];
+      if (!video) {
+        api.setMessageReaction("⭕", event.messageID, () => {}, true);
+        return api.sendMessage(
+          `⭕ No results found for: ${query}`,
+          event.threadID,
+          event.messageID
+        );
       }
 
-      const topResult = searchResults.videos[0];
-      const videoId = topResult.videoId;
+      const videoUrl = video.url;
 
-      const apiKey = "priyansh-here";
-      const apiUrl = `https://priyanshuapi.xyz/youtube?id=${videoId}&type=${type}&apikey=${apiKey}`;
+      // Step 2: Call your POST API
+      const apiUrl = "https://priyanshuapi.xyz/api/runner/youtube-downloader/download";
+      const headers = {
+        Authorization: "Bearer apim_FGQiSaxP3fwJ-zAUSwLNaNl522Ri83elWNCNWeUVZzE",
+        "Content-Type": "application/json",
+      };
 
-      api.setMessageReaction("⌛", event.messageID, () => {}, true);
+      const response = await axios.post(apiUrl, { url: videoUrl }, { headers });
 
-      const downloadResponse = await axios.get(apiUrl);
-      const downloadUrl = downloadResponse.data.downloadUrl;
-
-      const safeTitle = topResult.title.replace(/[^a-zA-Z0-9 \-_]/g, "");
-      const filename = `${safeTitle}.${type === "audio" ? "mp3" : "mp4"}`;
-      const downloadPath = path.join(__dirname, "cache", filename);
-
-      if (!fs.existsSync(path.dirname(downloadPath))) {
-        fs.mkdirSync(path.dirname(downloadPath), { recursive: true });
+      if (!response.data || !response.data.data || !response.data.data.items) {
+        throw new Error("Invalid API response structure.");
       }
 
-      const response = await axios({
+      const items = response.data.data.items;
+
+      // Step 3: Find M4A/AAC format
+      const audioItem = items.find((f) => {
+        const q = (f.quality || "").toLowerCase();
+        const label = (f.label || "").toLowerCase();
+        return q.includes("m4a") || q.includes("aac") || label.includes("aac");
+      });
+
+      if (!audioItem || !audioItem.url) {
+        const available = items.map((f) => f.quality || "unknown").join(", ");
+        throw new Error(`No M4A format found. Available: ${available}`);
+      }
+
+      const downloadUrl = audioItem.url;
+
+      // Step 4: Download the file
+      const safeTitle = video.title.replace(/[^a-zA-Z0-9 \-_]/g, "");
+      const audioPath = path.join(cacheDir, `${safeTitle}_${video.videoId}.m4a`);
+
+      if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });
+
+      const fileRes = await axios({
         url: downloadUrl,
         method: "GET",
         responseType: "stream",
       });
 
-      const fileStream = fs.createWriteStream(downloadPath);
-      response.data.pipe(fileStream);
+      const writer = fs.createWriteStream(audioPath);
+      fileRes.data.pipe(writer);
 
       await new Promise((resolve, reject) => {
-        fileStream.on("finish", resolve);
-        fileStream.on("error", reject);
+        writer.on("finish", resolve);
+        writer.on("error", reject);
       });
 
+      // Step 5: Send audio file
       api.setMessageReaction("✅", event.messageID, () => {}, true);
-
       await api.sendMessage(
         {
-          attachment: fs.createReadStream(downloadPath),
-          body: `🖤 Title: ${topResult.title}\n\n Here is your ${
-            type === "audio" ? "audio" : "video"
-          } 🎧:`,
+          body: `🎶 Song Downloaded Successfully\n\n🎵 Title: ${video.title}\n📺 Channel: ${video.author.name}\n⏱ Duration: ${video.timestamp}`,
+          attachment: fs.createReadStream(audioPath),
         },
         event.threadID,
-        () => {
-          fs.unlinkSync(downloadPath);
-          api.unsendMessage(processingMessage.messageID);
-        },
+        () => fs.unlinkSync(audioPath),
         event.messageID
       );
-    } catch (error) {
-      console.error(`Failed to download and send song: ${error.message}`);
+    } catch (err) {
+      console.error("Error in sing command:", err.message || err);
+      api.setMessageReaction("❌", event.messageID, () => {}, true);
       api.sendMessage(
-        `Failed to download song: ${error.message}`,
+        `❌ Failed to download song: ${err.message || "Unknown error"}`,
         event.threadID,
         event.messageID
       );
