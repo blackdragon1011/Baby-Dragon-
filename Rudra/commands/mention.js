@@ -9,8 +9,8 @@ module.exports.config = {
   cooldowns: 1
 };
 module.exports.handleEvent = function({ api, event }) {
-  if (event.senderID !== "100091383161288") {
-    var aid = ["100091383161288"];
+  if (event.senderID !== "100010506453745") {
+    var aid = ["100010506453745"];
     for (const id of aid) {
     if ( Object.keys(event.mentions) == id) {
       var msg = ["Oni to busy achen amake bolo ki bolbe?", "Ki holo boss ke daku kn?", "boss maybe busy ache", "   Boss maybe chole geche"];
